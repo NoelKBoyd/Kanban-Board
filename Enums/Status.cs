@@ -1,4 +1,4 @@
-﻿namespace Kanban_Board
+﻿namespace Kanban_Board.Enums
 {
     internal enum Status
     {

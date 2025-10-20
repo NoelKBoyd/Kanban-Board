@@ -1,26 +1,28 @@
 ﻿using Kanban_Board.Enums;
-using System.Threading.Tasks;
 
 namespace Kanban_Board.Classes
 {
-    internal class Board
+    internal class KanbanList
     {
         public required string title { get; set; }
         public string? description { get; set; }
-        public List<KanbanList> lists { get; set; } = new List<KanbanList>();
+        public DateTime deadline { get; set; }
+        public Priority priority { get; set; }
+        public List<KanbanTask> tasks { get; set; } = new List<KanbanTask>();
+
         public Status status
         {
             get
             {
-                if (lists.Count == 0)
+                if (tasks.Count == 0)
                 {
                     return Status.ToDo;
                 }
-                if (lists.All(l => l.status == Status.Done))
+                if (tasks.All(t => t.status == Status.Done))
                 {
                     return Status.Done;
                 }
-                if (lists.Any(l => l.status == Status.InProgress))
+                if (tasks.Any(t => t.status == Status.InProgress))
                 {
                     return Status.InProgress;
                 }
