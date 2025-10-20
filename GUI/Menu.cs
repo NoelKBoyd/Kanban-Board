@@ -1,4 +1,5 @@
-﻿using Kanban_Board.Enums;
+﻿using Kanban_Board.Classes;
+using Kanban_Board.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,8 @@ namespace Kanban_Board.GUI
 
         public static void DisplayTasks()
         {
+            List<KanbanTask> taskList = new List<KanbanTask>();
+
             while (true)
             {
                 Console.WriteLine("----------------------Tasks---------------------");
@@ -38,11 +41,40 @@ namespace Kanban_Board.GUI
                     Console.Clear();
                     switch (response)
                     {
-                        case 1:
-                            // View Tasks
+                        case 1: //VIEW TASKS
+                            Console.WriteLine("--- All Tasks ---");
+                            if (taskList.Count == 0)
+                            {
+                                Console.WriteLine("No tasks to display. Please create a task first.");
+                            }
+                            else
+                            {
+                                // 3. Loop through the list and print details
+                                foreach (KanbanTask task in taskList)
+                                {
+                                    Console.WriteLine($"Title: {task.title}");
+                                    Console.WriteLine($"Description: {task.description}");
+                                    Console.WriteLine($"Status: {task.status}");
+                                    Console.WriteLine($"Priority: {task.priority}");
+                                    Console.WriteLine($"Deadline: {task.deadline.ToShortDateString()}"); // Formatted date
+                                    Console.WriteLine("-----------------");
+                                }
+                            }
+                            Console.WriteLine("Press any key to return to the menu.");
+                            Console.ReadKey();
                             break;
-                        case 2:
-                            // Create Tasks
+                        case 2: // CREATE TASKS
+
+                            string Title = "test";
+                            string Description = "this is a test task";
+                            Status status = Status.ToDo;
+                            DateTime Deadline = DateTime.Now.AddDays(7);
+                            Priority priority = Priority.Medium;
+
+                            KanbanTask newTask = new KanbanTask(Title, Description, status, Deadline, priority);
+
+                            taskList.Add(newTask);
+
                             break;
                         case 3:
                             // Edit Tasks

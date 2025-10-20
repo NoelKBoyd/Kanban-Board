@@ -1,11 +1,13 @@
-﻿using System.ComponentModel.Design;
+﻿using Kanban_Board.Classes;
+using System.ComponentModel.Design;
 
 namespace Kanban_Board
 {
     internal class Entry
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
+
             bool exit = false;
             while (!exit)
             {
