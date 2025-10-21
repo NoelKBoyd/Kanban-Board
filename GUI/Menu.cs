@@ -1,10 +1,6 @@
 ﻿using Kanban_Board.Classes;
 using Kanban_Board.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Kanban_Board.Services;
 
 namespace Kanban_Board.GUI
 {
@@ -20,13 +16,11 @@ namespace Kanban_Board.GUI
             Console.WriteLine("4. Exit");
             Console.WriteLine("------------------------------------------------");
         }
-
-        public static void DisplayTasks()
+        public static void DisplayTasks(TaskManager taskManager)
         {
-            List<KanbanTask> taskList = new List<KanbanTask>();
-
             while (true)
             {
+                Console.Clear();
                 Console.WriteLine("----------------------Tasks---------------------");
                 Console.WriteLine("Please select from one of the following options:");
                 Console.WriteLine("1. View Tasks");
@@ -41,7 +35,9 @@ namespace Kanban_Board.GUI
                     Console.Clear();
                     switch (response)
                     {
-                        case 1: //VIEW TASKS
+                        case 1:
+                            List<KanbanTask> taskList = taskManager.GetTasks();
+
                             Console.WriteLine("--- All Tasks ---");
                             if (taskList.Count == 0)
                             {
@@ -49,49 +45,48 @@ namespace Kanban_Board.GUI
                             }
                             else
                             {
-                                // 3. Loop through the list and print details
                                 foreach (KanbanTask task in taskList)
                                 {
                                     Console.WriteLine($"Title: {task.title}");
                                     Console.WriteLine($"Description: {task.description}");
                                     Console.WriteLine($"Status: {task.status}");
                                     Console.WriteLine($"Priority: {task.priority}");
-                                    Console.WriteLine($"Deadline: {task.deadline.ToShortDateString()}"); // Formatted date
+                                    Console.WriteLine($"Deadline: {task.deadline.ToShortDateString()}");
                                     Console.WriteLine("-----------------");
                                 }
                             }
                             Console.WriteLine("Press any key to return to the menu.");
                             Console.ReadKey();
                             break;
-                        case 2: // CREATE TASKS
 
-                            string Title = "test";
-                            string Description = "this is a test task";
-                            Status status = Status.ToDo;
-                            DateTime Deadline = DateTime.Now.AddDays(7);
-                            Priority priority = Priority.Medium;
-
-                            KanbanTask newTask = new KanbanTask(Title, Description, status, Deadline, priority);
-
-                            taskList.Add(newTask);
-
+                        case 2:
+                            CreateTask(taskManager);
                             break;
+
                         case 3:
-                            // Edit Tasks
+                            ;
+                            Console.WriteLine("Edit Tasks - Not implemented yet.");
+                            Console.ReadKey();
                             break;
+
                         case 4:
-                            // Delete Tasks
+                            Console.WriteLine("Delete Tasks - Not implemented yet.");
+                            Console.ReadKey();
                             break;
+
                         case 5: // Exit to Main Menu
                             return;
+
                         default:
                             Console.WriteLine("Invalid option. Please try again.");
+                            Console.ReadKey();
                             break;
                     }
                 }
                 else
                 {
                     Console.WriteLine("Invalid input. Please enter a number.");
+                    Console.ReadKey();
                 }
             }
         }
@@ -143,6 +138,106 @@ namespace Kanban_Board.GUI
                     Console.WriteLine("Invalid input. Please enter a number.");
                 }
             }
+        }
+
+        private static void CreateTask(TaskManager taskManager)
+        {
+            Console.Clear();
+            Console.WriteLine("--- Create New Task ---");
+
+            Console.WriteLine("Please enter a title:");
+            string title = Console.ReadLine() ?? "Untitled Task";
+
+            Console.WriteLine("Please enter a description:");
+            string description = Console.ReadLine() ?? "";
+
+            Status status = GetStatusFromUser();
+            DateTime deadline = GetDeadlineFromUser();
+            Priority priority = GetPriorityFromUser();
+
+            // Call the TaskManager to do the actual work
+            taskManager.CreateTask(title, description, status, deadline, priority);
+
+            Console.WriteLine("Task created successfully!");
+            Console.WriteLine("Press any key to return to the menu.");
+            Console.ReadKey();
+        }
+
+        private static DateTime GetDeadlineFromUser()
+        {
+            DateTime deadline;
+            Console.WriteLine("Please enter a deadline (YYYY-MM-DD):");
+            while (!DateTime.TryParse(Console.ReadLine(), out deadline))
+            {
+                Console.WriteLine("Invalid date format. Please try again (YYYY-MM-DD):");
+            }
+            return deadline;
+        }
+
+        private static Priority GetPriorityFromUser()
+        {
+            Priority Priority;
+            Console.WriteLine("What is the priority?");
+            Console.WriteLine("1. Low");
+            Console.WriteLine("2. Medium");
+            Console.WriteLine("3. High");
+            string? userInput = Console.ReadLine();
+            if (int.TryParse(userInput, out int Out))
+            {
+                switch (Out)
+                {
+                    case 1:
+                        Priority = Priority.Low;
+                        break;
+                    case 2:
+                        Priority = Priority.Medium;
+                        break;
+                    case 3:
+                        Priority = Priority.High;
+                        break;
+                    default:
+                        Priority = Priority.Low;
+                        break;
+                }
+            }
+            else
+            {
+                Priority = Priority.Low;
+            }
+            return Priority;
+        }
+
+        private static Status GetStatusFromUser()
+        {
+            Status Status;
+            Console.WriteLine("What is the status?");
+            Console.WriteLine("1. ToDo");
+            Console.WriteLine("2. In Progress");
+            Console.WriteLine("3. Done");
+            string? userInput = Console.ReadLine();
+            if (int.TryParse(userInput, out int Out))
+            {
+                switch (Out)
+                {
+                    case 1:
+                        Status = Status.ToDo;
+                        break;
+                    case 2:
+                        Status = Status.InProgress;
+                        break;
+                    case 3:
+                        Status = Status.Done;
+                        break;
+                    default:
+                        Status = Status.ToDo;
+                        break;
+                }
+            }
+            else
+            {
+                Status = Status.ToDo;
+            }
+            return Status;
         }
 
 

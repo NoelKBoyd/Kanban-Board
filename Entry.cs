@@ -1,5 +1,4 @@
-﻿using Kanban_Board.Classes;
-using System.ComponentModel.Design;
+﻿using Kanban_Board.Services;
 
 namespace Kanban_Board
 {
@@ -7,6 +6,8 @@ namespace Kanban_Board
     {
         public static void Main(string[] args)
         {
+            // Create an instance of TaskManager to pass to DisplayTasks
+            TaskManager taskManager = new TaskManager();
 
             bool exit = false;
             while (!exit)
@@ -23,7 +24,7 @@ namespace Kanban_Board
                         GUI.Menu.DisplayLists();
                         break;
                     case 3:
-                        GUI.Menu.DisplayTasks();
+                        GUI.Menu.DisplayTasks(taskManager); // Pass taskManager as argument
                         break;
                     case 4:
                         exit = true;
@@ -36,9 +37,5 @@ namespace Kanban_Board
                 }
             }
         }
-
-        
-
-        
     }
 }
