@@ -49,6 +49,7 @@ namespace Kanban_Board.GUI
                             break;
 
                         case 4:
+
                             Console.WriteLine("Delete Tasks - Not implemented yet.");
                             Console.ReadKey();
                             break;
@@ -121,17 +122,21 @@ namespace Kanban_Board.GUI
         private static void CreateTask(TaskManager taskManager)
         {
             Console.Clear();
-            Console.WriteLine("--- Create New Task ---");
-
-            Console.WriteLine("Please enter a title:");
+            Console.WriteLine("--- Title ---");
             string title = Console.ReadLine() ?? "Untitled Task";
-
-            Console.WriteLine("Please enter a description:");
+            Console.Clear();
+            Console.WriteLine("--- Description ---");
             string description = Console.ReadLine() ?? "";
-
+            Console.Clear();
+            Console.WriteLine("--- Status ---");
             Status status = GetStatusFromUser();
+            Console.Clear();
+            Console.WriteLine("--- Deadline ---");
             DateTime deadline = GetDeadlineFromUser();
+            Console.Clear();
+            Console.WriteLine("--- Priority ---");
             Priority priority = GetPriorityFromUser();
+            Console.Clear();
 
             // Call the TaskManager to do the actual work
             taskManager.CreateTask(title, description, status, deadline, priority);
@@ -141,34 +146,11 @@ namespace Kanban_Board.GUI
             Console.ReadKey();
         }
 
-        //private static DateTime GetDeadlineFromUser()
-        //{
-        //    const string format = "DD-MM-YYYY";
-
-        //    // Use Console.Write to keep the cursor on the same line
-        //    Console.WriteLine($"Please enter a deadline ({format}):");
-        //    Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd")}");
-
-        //    while (true)
-        //    {
-        //        string? input = Console.ReadLine();
-
-        //        input = input.Trim();
-        //        if (DateTime.TryParseExact(input, format, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime parsed))
-        //        {
-        //            return parsed.Date;
-        //        }
-
-        //        // Use Console.Write for the error as well, to re-prompt on the same line
-        //        Console.Write($"Invalid date format. Please try again ({format})");
-        //    }
-        //}
         private static DateTime GetDeadlineFromUser()
         {
             const string format = "DD-MM-YYYY";
             string deadlineInput;
 
-            Console.WriteLine($"Please select a deadline:");
             Console.WriteLine("1: Today");
             Console.WriteLine("2: In a Week");
             Console.WriteLine("3: In a Fortnight");
@@ -211,7 +193,6 @@ namespace Kanban_Board.GUI
         private static Priority GetPriorityFromUser()
         {
             Priority Priority;
-            Console.WriteLine("What is the priority?");
             Console.WriteLine("1. Low");
             Console.WriteLine("2. Medium");
             Console.WriteLine("3. High");
@@ -230,12 +211,14 @@ namespace Kanban_Board.GUI
                         Priority = Priority.High;
                         break;
                     default:
+                        Console.WriteLine("Invalid option. Defaulting to Low priority.");
                         Priority = Priority.Low;
                         break;
                 }
             }
             else
             {
+                Console.WriteLine("Invalid input. Defaulting to Low priority.");
                 Priority = Priority.Low;
             }
             return Priority;
@@ -244,8 +227,7 @@ namespace Kanban_Board.GUI
         private static Status GetStatusFromUser()
         {
             Status Status;
-            Console.WriteLine("What is the status?");
-            Console.WriteLine("1. ToDo");
+            Console.WriteLine("1. To Do");
             Console.WriteLine("2. In Progress");
             Console.WriteLine("3. Done");
             string? userInput = Console.ReadLine();
@@ -263,12 +245,14 @@ namespace Kanban_Board.GUI
                         Status = Status.Done;
                         break;
                     default:
+                        Console.WriteLine("Invalid option. Defaulting to To Do status.");
                         Status = Status.ToDo;
                         break;
                 }
             }
             else
             {
+                Console.WriteLine("Invalid input. Defaulting to To Do status.");
                 Status = Status.ToDo;
             }
             return Status;
@@ -285,8 +269,11 @@ namespace Kanban_Board.GUI
             }
             else
             {
-                foreach (KanbanTask task in taskList)
+                for (int i = 0; i < taskList.Count; i++)
                 {
+                    KanbanTask task = taskList[i];
+                    int displayNumber = i + 1;
+                    Console.WriteLine($"Task #{displayNumber}");
                     Console.WriteLine($"Title: {task.title}");
                     Console.WriteLine($"Description: {task.description}");
                     Console.WriteLine($"Status: {task.status}");
@@ -304,7 +291,6 @@ namespace Kanban_Board.GUI
         {
             while (true)
             {
-
                 Console.WriteLine("----------------------Lists---------------------");
                 Console.WriteLine("Please select from one of the following options:");
                 Console.WriteLine("1. View Lists");

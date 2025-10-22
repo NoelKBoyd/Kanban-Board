@@ -1,4 +1,5 @@
 ﻿using Kanban_Board.Services;
+using System.Reflection;
 
 namespace Kanban_Board
 {
@@ -6,7 +7,12 @@ namespace Kanban_Board
     {
         public static void Main(string[] args)
         {
-            // Create an instance of TaskManager to pass to DisplayTasks
+            if (args.Contains("-v") || args.Contains("--version"))
+            {
+                var version = Assembly.GetExecutingAssembly().GetName().Version;
+                Console.WriteLine($"Kanban-Board Version: {version}");
+            }
+
             TaskManager taskManager = new TaskManager();
 
             bool exit = false;

@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "Kanban-Board": {
+      "commandName": "Project"
+    }
+  }
+}
