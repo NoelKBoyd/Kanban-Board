@@ -36,27 +36,7 @@ namespace Kanban_Board.GUI
                     switch (response)
                     {
                         case 1:
-                            List<KanbanTask> taskList = taskManager.GetTasks();
-
-                            Console.WriteLine("--- All Tasks ---");
-                            if (taskList.Count == 0)
-                            {
-                                Console.WriteLine("No tasks to display. Please create a task first.");
-                            }
-                            else
-                            {
-                                foreach (KanbanTask task in taskList)
-                                {
-                                    Console.WriteLine($"Title: {task.title}");
-                                    Console.WriteLine($"Description: {task.description}");
-                                    Console.WriteLine($"Status: {task.status}");
-                                    Console.WriteLine($"Priority: {task.priority}");
-                                    Console.WriteLine($"Deadline: {task.deadline.ToShortDateString()}");
-                                    Console.WriteLine("-----------------");
-                                }
-                            }
-                            Console.WriteLine("Press any key to return to the menu.");
-                            Console.ReadKey();
+                            ViewTasks(taskManager);
                             break;
 
                         case 2:
@@ -64,8 +44,7 @@ namespace Kanban_Board.GUI
                             break;
 
                         case 3:
-                            ;
-                            Console.WriteLine("Edit Tasks - Not implemented yet.");
+
                             Console.ReadKey();
                             break;
 
@@ -76,7 +55,6 @@ namespace Kanban_Board.GUI
 
                         case 5: // Exit to Main Menu
                             return;
-
                         default:
                             Console.WriteLine("Invalid option. Please try again.");
                             Console.ReadKey();
@@ -163,15 +141,71 @@ namespace Kanban_Board.GUI
             Console.ReadKey();
         }
 
+        //private static DateTime GetDeadlineFromUser()
+        //{
+        //    const string format = "DD-MM-YYYY";
+
+        //    // Use Console.Write to keep the cursor on the same line
+        //    Console.WriteLine($"Please enter a deadline ({format}):");
+        //    Console.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd")}");
+
+        //    while (true)
+        //    {
+        //        string? input = Console.ReadLine();
+
+        //        input = input.Trim();
+        //        if (DateTime.TryParseExact(input, format, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime parsed))
+        //        {
+        //            return parsed.Date;
+        //        }
+
+        //        // Use Console.Write for the error as well, to re-prompt on the same line
+        //        Console.Write($"Invalid date format. Please try again ({format})");
+        //    }
+        //}
         private static DateTime GetDeadlineFromUser()
         {
-            DateTime deadline;
-            Console.WriteLine("Please enter a deadline (YYYY-MM-DD):");
-            while (!DateTime.TryParse(Console.ReadLine(), out deadline))
+            const string format = "DD-MM-YYYY";
+            string deadlineInput;
+
+            Console.WriteLine($"Please select a deadline:");
+            Console.WriteLine("1: Today");
+            Console.WriteLine("2: In a Week");
+            Console.WriteLine("3: In a Fortnight");
+            Console.WriteLine("4: In a Month");
+            Console.WriteLine("5: Custom Date");
+
+            string? input = Console.ReadLine();
+            if (int.TryParse(input, out int response))
             {
-                Console.WriteLine("Invalid date format. Please try again (YYYY-MM-DD):");
+                switch (response)
+                {
+                    case 1:
+                        deadlineInput = DateTime.Now.ToString("yyyy-MM-dd");
+                        return DateTime.Parse(deadlineInput);
+                    case 2:
+                        deadlineInput = DateTime.Now.AddDays(7).ToString("yyyy-MM-dd");
+                        return DateTime.Parse(deadlineInput);
+                    case 3:
+                        deadlineInput = DateTime.Now.AddDays(14).ToString("yyyy-MM-dd");
+                        return DateTime.Parse(deadlineInput);
+                    case 4:
+                        deadlineInput = DateTime.Now.AddMonths(1).ToString("yyyy-MM-dd");
+                        return DateTime.Parse(deadlineInput);
+                    case 5:
+                        Console.WriteLine($"Please enter a deadline ({format}):");
+                        deadlineInput = Console.ReadLine() ?? DateTime.Now.ToString("yyyy-MM-dd");
+                        return DateTime.Parse(deadlineInput);
+                    default:
+                        Console.WriteLine("Invalid option. Please try again.");
+                        break;
+                }
             }
-            return deadline;
+            else
+            {
+                Console.WriteLine("Invalid input. Please enter a number.");
+            }
+            return DateTime.Now;
         }
 
         private static Priority GetPriorityFromUser()
@@ -238,6 +272,31 @@ namespace Kanban_Board.GUI
                 Status = Status.ToDo;
             }
             return Status;
+        }
+
+        public static void ViewTasks(TaskManager taskManager)
+        {
+            List<KanbanTask> taskList = taskManager.GetTasks();
+
+            Console.WriteLine("--- All Tasks ---");
+            if (taskList.Count == 0)
+            {
+                Console.WriteLine("No tasks to display. Please create a task first.");
+            }
+            else
+            {
+                foreach (KanbanTask task in taskList)
+                {
+                    Console.WriteLine($"Title: {task.title}");
+                    Console.WriteLine($"Description: {task.description}");
+                    Console.WriteLine($"Status: {task.status}");
+                    Console.WriteLine($"Priority: {task.priority}");
+                    Console.WriteLine($"Deadline: {task.deadline.ToShortDateString()}");
+                    Console.WriteLine("-----------------");
+                }
+            }
+            Console.WriteLine("Press any key to return to the menu.");
+            Console.ReadKey();
         }
 
 
