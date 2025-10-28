@@ -19,28 +19,37 @@ namespace Kanban_Board
             while (!exit)
             {
                 GUI.Menu.DisplayMenu();
-                int response = Convert.ToInt32(Console.ReadLine());
-                Console.Clear();
-                switch (response)
+                if (int.TryParse(Console.ReadLine(), out int response))
                 {
-                    case 1:
-                        GUI.Menu.DisplayBoards();
-                        break;
-                    case 2:
-                        GUI.Menu.DisplayLists();
-                        break;
-                    case 3:
-                        GUI.Menu.DisplayTasks(taskManager); // Pass taskManager as argument
-                        break;
-                    case 4:
-                        exit = true;
-                        Console.WriteLine("Thanks for using kanban-Board!");
-                        Thread.Sleep(1000);
-                        break;
-                    default:
-                        GUI.Menu.DisplayMenu();
-                        break;
+                    Console.Clear();
+                    switch (response)
+                    {
+                        case 1:
+                            GUI.Menu.DisplayBoards();
+                            break;
+                        case 2:
+                            GUI.Menu.DisplayLists();
+                            break;
+                        case 3:
+                            GUI.Menu.DisplayTasks(taskManager);
+                            break;
+                        case 4:
+                            exit = true;
+                            Console.WriteLine("Thanks for using kanban-Board!");
+                            Thread.Sleep(1000);
+                            break;
+                        default:
+                            Console.WriteLine("Invalid option. Please choose a number from 1 to 4.");
+                            Thread.Sleep(1000);
+                            break;
+                    }
                 }
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a number.");
+                    Thread.Sleep(1000);
+                }
+                if (!exit) Console.Clear();
             }
         }
     }
