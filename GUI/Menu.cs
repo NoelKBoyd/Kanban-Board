@@ -6,6 +6,30 @@ namespace Kanban_Board.GUI
 {
     internal class Menu
     {
+        public static void DisplayUserRegistration()
+        {
+            while (true)
+            {
+                Console.WriteLine("----- User Registration -----");
+                Console.WriteLine("Please enter your desired username:");
+                string username = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(username))
+                {
+                    Console.WriteLine("Username cannot be empty. Registration failed.");
+                    Console.WriteLine("Press any key to continue.");
+                    Console.ReadKey();
+                    return;
+                }
+                Console.WriteLine("Please enter your desired password:");
+                string password = Console.ReadLine();
+                Console.WriteLine("Should your profile be public? (Y/N):");
+                string isPublic = Console.ReadLine();
+                Console.WriteLine("User registered successfully!");
+                Console.WriteLine("Press any key to continue.");
+                Console.ReadKey();
+            }
+        }
+
         public static void DisplayMenu()
         {
             Console.WriteLine("------------------Kanban--ToDo------------------");
