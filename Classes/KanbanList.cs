@@ -2,30 +2,17 @@
 
 namespace Kanban_Board.Classes
 {
-    internal class KanbanList
+    internal class KanbanList : WorkItem
     {
-        public required string title { get; set; }
-        public string? description { get; set; }
-        public DateTime deadline { get; set; }
-        public Priority priority { get; set; }
-        public List<KanbanTask> tasks { get; set; } = new List<KanbanTask>();
+        public List<KanbanTask> Tasks { get; set; } = new List<KanbanTask>();
 
-        public Status status
+        public override Status Status
         {
             get
             {
-                if (tasks.Count == 0)
-                {
-                    return Status.ToDo;
-                }
-                if (tasks.All(t => t.status == Status.Done))
-                {
-                    return Status.Done;
-                }
-                if (tasks.Any(t => t.status == Status.InProgress))
-                {
-                    return Status.InProgress;
-                }
+                if (Tasks.Count == 0) return Status.ToDo;
+                if (Tasks.All(t => t.Status == Status.Done)) return Status.Done;
+                if (Tasks.Any(t => t.Status == Status.InProgress)) return Status.InProgress;
                 return Status.ToDo;
             }
         }

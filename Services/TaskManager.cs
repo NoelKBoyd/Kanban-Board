@@ -16,5 +16,28 @@ namespace Kanban_Board.Services
             KanbanTask newTask = new KanbanTask(title, description, status, deadline, priority);
             _tasks.Add(newTask);
         }
+
+        public void DeleteTask(KanbanTask task)
+        {
+            _tasks.Remove(task);
+        }
+
+        private void SaveTasks()
+        {
+            using (FileStream stream = File.Create("Tasks.bin"))
+            using (BinaryWriter writer = new BinaryWriter(stream))
+            {
+                writer.Write(_tasks.Count);
+                foreach (var task in _tasks)
+                {
+                    writer.Write(task.Title);
+                    writer.Write(task.Status.ToString());
+                    writer.Write(task.Description);
+                    writer.Write(task.Deadline.ToBinary());
+                    writer.Write(task.Priority.ToString());
+                }
+            }
+        }
+
     }
 }

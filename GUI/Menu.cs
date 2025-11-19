@@ -298,11 +298,11 @@ namespace Kanban_Board.GUI
                     KanbanTask task = taskList[i];
                     int displayNumber = i + 1;
                     Console.WriteLine($"Task #{displayNumber}");
-                    Console.WriteLine($"Title: {task.title}");
-                    Console.WriteLine($"Description: {task.description}");
-                    Console.WriteLine($"Status: {task.status}");
-                    Console.WriteLine($"Priority: {task.priority}");
-                    Console.WriteLine($"Deadline: {task.deadline.ToShortDateString()}");
+                    Console.WriteLine($"Title: {task.Title}");
+                    Console.WriteLine($"Description: {task.Description}");
+                    Console.WriteLine($"Status: {task.Status}");
+                    Console.WriteLine($"Priority: {task.Priority}");
+                    Console.WriteLine($"Deadline: {task.Deadline.ToShortDateString()}");
                     Console.WriteLine("-----------------");
                 }
             }

@@ -2,21 +2,30 @@
 
 namespace Kanban_Board.Classes
 {
-    internal class KanbanTask
+    internal class KanbanTask : WorkItem
     {
-        public string title { get; set; }
-        public string? description { get; set; }
-        public Status status { get; set; }
-        public DateTime deadline { get; set; }
-        public Priority priority { get; set; }
-
         public KanbanTask(string title, string description, Status status, DateTime deadline, Priority priority)
         {
-            this.title = title;
-            this.description = description;
-            this.status = status;
-            this.deadline = deadline;
-            this.priority = priority;
+            Title = title;
+            Description = description;
+            Status = status;
+            Deadline = deadline;
+            Priority = priority;
+        }
+
+        public void SetStatus(Status newStatus)
+        {
+            Status = newStatus;
+        }
+
+        public void MarkAsDone()
+        {
+            Status = Status.Done;
+        }
+
+        public void SetPriority(Priority newPriority)
+        {
+            Priority = newPriority;
         }
     }
 }
