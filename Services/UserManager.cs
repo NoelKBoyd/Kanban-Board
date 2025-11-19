@@ -4,12 +4,12 @@ namespace Kanban_Board.Services
 {
     internal class UserManager
     {
-        public void CreateUser(string username, string password, bool isPublic)
+        public void CreateUser(string username, string hashedPassword, bool isPublic)
         {
             User newUser = new User
             {
                 Username = username,
-                Password = password,
+                HashedPassword = hashedPassword,
                 isPublic = isPublic
             };
         }

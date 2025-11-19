@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Kanban-Board": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "--clear"
     }
   }
 }
