@@ -4,8 +4,11 @@ namespace Kanban_Board.Classes
 {
     internal class KanbanTask : WorkItem
     {
-        public KanbanTask(string title, string description, Status status, DateTime deadline, Priority priority)
+
+        public int Id { get; set; }
+        public KanbanTask(int id, string title, string description, Status status, DateTime deadline, Priority priority)
         {
+            Id = id;
             Title = title;
             Description = description;
             Status = status;
@@ -26,6 +29,25 @@ namespace Kanban_Board.Classes
         public void SetPriority(Priority newPriority)
         {
             Priority = newPriority;
+        }
+
+        public bool IsOverdue()
+        {
+            return Status != Status.Done && DateTime.Now > Deadline;
+        }
+
+        public string GetTimeRemaining()
+        {
+            if (Status == Status.Done) return "Completed";
+
+            TimeSpan remaining = Deadline - DateTime.Now;
+
+            if (remaining.TotalDays < 0)
+                return $"Overdue by {Math.Abs(remaining.Days)} days";
+            else if (remaining.TotalDays < 1)
+                return "Due today";
+            else
+                return $"{remaining.Days} days remaining";
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Kanban_Board.Classes;
 using Kanban_Board.Enums;
 using Kanban_Board.Services;
+using System;
 
 namespace Kanban_Board.GUI
 {
@@ -68,17 +69,14 @@ namespace Kanban_Board.GUI
                             break;
 
                         case 3:
-
-                            Console.ReadKey();
+                            EditTask(taskManager);
                             break;
 
                         case 4:
-
-                            Console.WriteLine("Delete Tasks - Not implemented yet.");
-                            Console.ReadKey();
+                            DeleteTask(taskManager);
                             break;
 
-                        case 5: // Exit to Main Menu
+                        case 5:
                             return;
                         default:
                             Console.WriteLine("Invalid option. Please try again.");
@@ -136,10 +134,37 @@ namespace Kanban_Board.GUI
                             break;
                     }
                 }
-                else //handle the parse if its empty or a string
+                else
                 {
                     Console.WriteLine("Invalid input. Please enter a number.");
                 }
+            }
+        }
+
+        private static void DeleteTask(TaskManager taskManager)
+        {
+            Console.Clear();
+            ViewTasks(taskManager, pause: false);
+            Console.WriteLine("\nEnter the ID of the task you want to delete:");
+            string? input = Console.ReadLine();
+            if (int.TryParse(input, out int response))
+            {
+                KanbanTask taskToDelete = taskManager.GetTaskById(response);
+                if (taskToDelete != null)
+                {
+                    taskManager.DeleteTask(taskToDelete);
+                    Console.WriteLine("Task deleted successfully!");
+                    Console.WriteLine("Press any key to return to the menu.");
+                    Console.ReadKey();
+                }
+                else
+                {
+                    Console.WriteLine("Task not found with that ID.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid ID format.");
             }
         }
 
@@ -282,7 +307,7 @@ namespace Kanban_Board.GUI
             return Status;
         }
 
-        public static void ViewTasks(TaskManager taskManager)
+        public static void ViewTasks(TaskManager taskManager, bool pause = true)
         {
             List<KanbanTask> taskList = taskManager.GetTasks();
 
@@ -290,14 +315,20 @@ namespace Kanban_Board.GUI
             if (taskList.Count == 0)
             {
                 Console.WriteLine("No tasks to display. Please create a task first.");
+                if (!pause)
+                {
+                    Console.WriteLine("Press any key to return.");
+                    Console.ReadKey();
+                    return;
+                }
             }
             else
             {
                 for (int i = 0; i < taskList.Count; i++)
                 {
                     KanbanTask task = taskList[i];
-                    int displayNumber = i + 1;
-                    Console.WriteLine($"Task #{displayNumber}");
+
+                    Console.WriteLine($"ID: {task.Id}");
                     Console.WriteLine($"Title: {task.Title}");
                     Console.WriteLine($"Description: {task.Description}");
                     Console.WriteLine($"Status: {task.Status}");
@@ -306,8 +337,78 @@ namespace Kanban_Board.GUI
                     Console.WriteLine("-----------------");
                 }
             }
-            Console.WriteLine("Press any key to return to the menu.");
-            Console.ReadKey();
+
+            if (pause)
+            {
+                Console.WriteLine("Press any key to return to the menu.");
+                Console.ReadKey();
+            }
+        }
+
+        private static void EditTask(TaskManager taskManager)
+        {
+            Console.Clear();
+            ViewTasks(taskManager, pause: false);
+
+            Console.WriteLine("\nEnter the ID of the task you want to edit:");
+            if (int.TryParse(Console.ReadLine(), out int inputId))
+            {
+                KanbanTask taskToEdit = taskManager.GetTaskById(inputId);
+
+                if (taskToEdit != null)
+                {
+                    Console.WriteLine($"Editing Task: {taskToEdit.Title}");
+                    Console.WriteLine("Which field would you like to update?");
+                    Console.WriteLine("1. Title");
+                    Console.WriteLine("2. Description");
+                    Console.WriteLine("3. Status");
+                    Console.WriteLine("4. Priority");
+                    Console.WriteLine("5. Deadline");
+                    Console.WriteLine("6. Cancel");
+
+                    if (int.TryParse(Console.ReadLine(), out int choice))
+                    {
+                        switch (choice)
+                        {
+                            case 1:
+                                Console.WriteLine("Enter new Title:");
+                                string newTitle = Console.ReadLine();
+                                if (!string.IsNullOrWhiteSpace(newTitle))
+                                    taskToEdit.Title = newTitle;
+                                break;
+                            case 2:
+                                Console.WriteLine("Enter new Description:");
+                                taskToEdit.Description = Console.ReadLine();
+                                break;
+                            case 3:
+                                Console.WriteLine("Select new Status:");
+                                taskToEdit.Status = GetStatusFromUser();
+                                break;
+                            case 4:
+                                Console.WriteLine("Select new Priority:");
+                                taskToEdit.Priority = GetPriorityFromUser();
+                                break;
+                            case 5:
+                                Console.WriteLine("Select new Deadline:");
+                                taskToEdit.Deadline = GetDeadlineFromUser();
+                                break;
+                            default:
+                                Console.WriteLine("Edit cancelled.");
+                                return;
+                        }
+                        Console.WriteLine("Task updated successfully!");
+                        Console.WriteLine("Press enter to return to the menu");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Task not found with that ID.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid ID format.");
+                }
+            }
         }
 
 

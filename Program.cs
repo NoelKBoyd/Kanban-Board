@@ -2,6 +2,7 @@
 using Kanban_Board.Services;
 using System.Reflection;
 using System.Text.Json;
+using Kanban_Board.Services;
 
 namespace Kanban_Board
 {
@@ -14,22 +15,39 @@ namespace Kanban_Board
         {
             if (args.Contains("--clear"))
             {
-                PrintColored($"'-clear' argument detected. Attempting to remove {UserFilePath}...", ConsoleColor.Yellow);
+                PrintColored($"'--clear' argument detected. Cleaning up system...", ConsoleColor.Yellow);
                 try
                 {
                     if (File.Exists(UserFilePath))
                     {
                         File.Delete(UserFilePath);
-                        PrintColored("Users file removed successfully. Starting fresh.", ConsoleColor.Green);
+                        PrintColored("Users file removed successfully.", ConsoleColor.Green);
                     }
                     else
                     {
-                        PrintColored("Users file not found. Nothing to clear.", ConsoleColor.Cyan);
+                        PrintColored("Users file not found.", ConsoleColor.Cyan);
                     }
+
+                    string[] taskFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*_tasks.bin");
+
+                    if (taskFiles.Length > 0)
+                    {
+                        foreach (string file in taskFiles)
+                        {
+                            File.Delete(file);
+                            PrintColored($"Deleted task file: {Path.GetFileName(file)}", ConsoleColor.Green);
+                        }
+                    }
+                    else
+                    {
+                        PrintColored("No task files found to clean.", ConsoleColor.Cyan);
+                    }
+
+                    PrintColored("System reset complete. Starting fresh.", ConsoleColor.Green);
                 }
                 catch (Exception ex)
                 {
-                    PrintColored($"Warning: Could not remove users file: {ex.Message}", ConsoleColor.Yellow);
+                    PrintColored($"Warning: Error during cleanup: {ex.Message}", ConsoleColor.Yellow);
                 }
             }
 
@@ -83,13 +101,12 @@ namespace Kanban_Board
                 }
             }
 
-            if (args.Contains("-v") || args.Contains("--version"))
-            {
-                var version = Assembly.GetExecutingAssembly().GetName().Version;
-                Console.WriteLine($"Kanban-Board Version: {version}");
-            }
-
             TaskManager taskManager = new TaskManager();
+
+            if (loggedInUser != null)
+            {
+                taskManager.LoadTasks(loggedInUser);
+            }
 
             bool exit = false;
             while (!exit)
@@ -113,9 +130,14 @@ namespace Kanban_Board
                         break;
                     case 3:
                         GUI.Menu.DisplayTasks(taskManager);
+                        if (loggedInUser != null) taskManager.SaveTasks(loggedInUser); //auto save after exiting
                         break;
                     case 4:
                         exit = true;
+                        if (loggedInUser != null)
+                        {
+                            taskManager.SaveTasks(loggedInUser);
+                        }
                         Console.WriteLine("Thanks for using Kanban-Board!");
                         Thread.Sleep(1000);
                         break;
@@ -150,10 +172,14 @@ namespace Kanban_Board
                 Console.WriteLine($"- Must contain at least one of these symbols: {charsToFind}");
 
                 string password = ReadPassword();
+                string errorMessage;
 
-                if (password.Length < 6) throw new ArgumentException("Password must be at least 6 characters long.");
-                if (password == username) throw new ArgumentException("Password cannot be the same as the username.");
-                if (!password.Any(c => charsToFind.Contains(c))) throw new ArgumentException($"Password must contain at least one of these symbols: {charsToFind}");
+                bool isValid = User.ValidatePassword(password, username, out errorMessage);
+
+                if (!isValid)
+                {
+                    throw new ArgumentException(errorMessage);
+                }
 
                 string hashedPassword;
                 try
