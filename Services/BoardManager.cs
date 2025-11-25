@@ -68,8 +68,6 @@ namespace Kanban_Board.Services
                         writer.Write(list.Title ?? "");
                         writer.Write(list.Description ?? "");
                         writer.Write((int)list.Status);
-                        writer.Write(list.Deadline.ToBinary());
-                        writer.Write((int)list.Priority);
 
                         writer.Write(list.Tasks.Count);
 
@@ -140,8 +138,6 @@ namespace Kanban_Board.Services
                                 Title = listTitle,
                                 Description = listDesc,
                                 Status = listStatus,
-                                Deadline = listDeadline,
-                                Priority = listPriority,
                                 Tasks = new List<KanbanTask>()
                             };
 

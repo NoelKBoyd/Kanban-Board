@@ -2,7 +2,7 @@
 
 namespace Kanban_Board.Classes
 {
-    internal class KanbanList : WorkItem
+    internal class KanbanList : KanbanEntity
     {
         public List<KanbanTask> Tasks { get; set; } = new List<KanbanTask>();
 

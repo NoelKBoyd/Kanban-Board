@@ -7,7 +7,6 @@ namespace Kanban_Board.Classes
         public int Id { get; set; }
         public string Title { get; set; }
         public string? Description { get; set; }
-
         public virtual Status Status { get; set; }
     }
 }

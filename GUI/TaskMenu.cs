@@ -7,60 +7,6 @@ namespace Kanban_Board.GUI
 {
     internal class TaskMenu
     {
-        public static void DeleteTask(TaskManager taskManager)
-        {
-            Console.Clear();
-            ViewTasks(taskManager, pause: false);
-            Console.WriteLine("\nEnter the ID of the task you want to delete:");
-            string? input = Console.ReadLine();
-            if (int.TryParse(input, out int response))
-            {
-                KanbanTask taskToDelete = taskManager.GetTaskById(response);
-                if (taskToDelete != null)
-                {
-                    taskManager.DeleteTask(taskToDelete);
-                    Console.WriteLine("Task deleted successfully!");
-                    Console.WriteLine("Press any key to return to the menu.");
-                    Console.ReadKey();
-                }
-                else
-                {
-                    Console.WriteLine("Task not found with that ID.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Invalid ID format.");
-            }
-        }
-
-        public static void CreateTask(TaskManager taskManager)
-        {
-            Console.Clear();
-            Console.WriteLine("--- Title ---");
-            string title = Console.ReadLine() ?? "Untitled Task";
-            Console.Clear();
-            Console.WriteLine("--- Description ---");
-            string description = Console.ReadLine() ?? "";
-            Console.Clear();
-            Console.WriteLine("--- Status ---");
-            Status status = GetStatusFromUser();
-            Console.Clear();
-            Console.WriteLine("--- Deadline ---");
-            DateTime deadline = GetDeadlineFromUser();
-            Console.Clear();
-            Console.WriteLine("--- Priority ---");
-            Priority priority = GetPriorityFromUser();
-            Console.Clear();
-
-            // Call the TaskManager to do the actual work
-            taskManager.CreateTask(title, description, status, deadline, priority);
-
-            Console.WriteLine("Task created successfully!");
-            Console.WriteLine("Press any key to return to the menu.");
-            Console.ReadKey();
-        }
-
         public static void ViewTasks(TaskManager taskManager, bool pause = true)
         {
             List<KanbanTask> taskList = taskManager.GetTasks();
@@ -97,6 +43,54 @@ namespace Kanban_Board.GUI
                 Console.WriteLine("Press any key to return to the menu.");
                 Console.ReadKey();
             }
+        }
+
+        public static void CreateTask(TaskManager taskManager)
+        {
+            string title = "";
+            while (string.IsNullOrWhiteSpace(title))
+            {
+                Console.Clear();
+                Console.WriteLine("--- Title ---");
+                Console.WriteLine("(Title is required)");
+
+                string input = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(input))
+                {
+                    title = input;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Error: Title cannot be empty.");
+                    Console.ResetColor();
+                    Console.WriteLine("Press any key to try again...");
+                    Console.ReadKey();
+                }
+            }
+
+            Console.Clear();
+            Console.WriteLine("--- Description ---");
+            string description = Console.ReadLine() ?? "";
+
+            Console.Clear();
+            Console.WriteLine("--- Status ---");
+            Status status = GetStatusFromUser();
+
+            Console.Clear();
+            Console.WriteLine("--- Deadline ---");
+            DateTime deadline = GetDeadlineFromUser();
+
+            Console.Clear();
+            Console.WriteLine("--- Priority ---");
+            Priority priority = GetPriorityFromUser();
+
+            Console.Clear();
+            taskManager.CreateTask(title, description, status, deadline, priority);
+
+            Console.WriteLine("Task created successfully!");
+            Thread.Sleep(1000);
         }
 
         public static void EditTask(TaskManager taskManager)
@@ -163,6 +157,33 @@ namespace Kanban_Board.GUI
                 {
                     Console.WriteLine("Invalid ID format.");
                 }
+            }
+        }
+
+        public static void DeleteTask(TaskManager taskManager)
+        {
+            Console.Clear();
+            ViewTasks(taskManager, pause: false);
+            Console.WriteLine("\nEnter the ID of the task you want to delete:");
+            string? input = Console.ReadLine();
+            if (int.TryParse(input, out int response))
+            {
+                KanbanTask taskToDelete = taskManager.GetTaskById(response);
+                if (taskToDelete != null)
+                {
+                    taskManager.DeleteTask(taskToDelete);
+                    Console.WriteLine("Task deleted successfully!");
+                    Console.WriteLine("Press any key to return to the menu.");
+                    Console.ReadKey();
+                }
+                else
+                {
+                    Console.WriteLine("Task not found with that ID.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid ID format.");
             }
         }
     }

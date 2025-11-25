@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Kanban_Board.Services
 {
@@ -34,12 +35,9 @@ namespace Kanban_Board.Services
             return _lists.FirstOrDefault(l => l.Id == id);
         }
 
-        public void AddTaskToList(int listIndex, KanbanTask task)
+        public void DeleteList(KanbanList list)
         {
-            if (listIndex >= 0 && listIndex < _lists.Count)
-            {
-                _lists[listIndex].Tasks.Add(task);
-            }
+            _lists.Remove(list);
         }
 
         // --- BINARY SAVE/LOAD IMPLEMENTATION ---

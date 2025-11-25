@@ -101,10 +101,14 @@ namespace Kanban_Board
             }
 
             TaskManager taskManager = new TaskManager();
+            ListManager listManager = new ListManager();
+            BoardManager boardManager = new BoardManager();
 
             if (loggedInUser != null)
             {
                 taskManager.LoadTasks(loggedInUser);
+                listManager.LoadLists(loggedInUser);
+                boardManager.LoadBoards(loggedInUser);
             }
 
             bool exit = false;
@@ -122,20 +126,27 @@ namespace Kanban_Board
                 switch (response)
                 {
                     case 1:
-                        GUI.MainMenu.DisplayBoards();
+                        GUI.MainMenu.DisplayBoards(boardManager);
+                        if (loggedInUser != null)
+                            boardManager.SaveBoards(loggedInUser);
                         break;
                     case 2:
-                        GUI.MainMenu.DisplayLists();
+                        GUI.MainMenu.DisplayLists(listManager);
+                        if (loggedInUser != null)
+                            listManager.SaveLists(loggedInUser);
                         break;
                     case 3:
                         GUI.MainMenu.DisplayTasks(taskManager);
-                        if (loggedInUser != null) taskManager.SaveTasks(loggedInUser); //auto save after exiting
+                        if (loggedInUser != null) 
+                            taskManager.SaveTasks(loggedInUser); 
                         break;
                     case 4:
                         exit = true;
                         if (loggedInUser != null)
                         {
                             taskManager.SaveTasks(loggedInUser);
+                            listManager.SaveLists(loggedInUser);
+                            boardManager.SaveBoards(loggedInUser);
                         }
                         Console.WriteLine("Thanks for using Kanban-Board!");
                         Thread.Sleep(1000);
