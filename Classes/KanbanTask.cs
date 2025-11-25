@@ -4,8 +4,6 @@ namespace Kanban_Board.Classes
 {
     internal class KanbanTask : WorkItem
     {
-
-        public int Id { get; set; }
         public KanbanTask(int id, string title, string description, Status status, DateTime deadline, Priority priority)
         {
             Id = id;

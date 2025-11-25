@@ -7,7 +7,7 @@ namespace Kanban_Board.Services
     {
         private List<KanbanTask> _tasks = new List<KanbanTask>();
 
-        private int _nextId = 1;  // To generate unique IDs for tasks
+        private int _nextId = 1;  //unique IDs
 
         public List<KanbanTask> GetTasks()
         {

@@ -1,12 +1,7 @@
 ﻿using Kanban_Board.Classes;
 using Kanban_Board.Enums;
 using Kanban_Board.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Kanban_Board.GUI.MainMenu;
+using static Kanban_Board.GUI.InputHelper;
 
 namespace Kanban_Board.GUI
 {
