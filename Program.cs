@@ -2,7 +2,6 @@
 using Kanban_Board.Services;
 using System.Reflection;
 using System.Text.Json;
-using Kanban_Board.Services;
 
 namespace Kanban_Board
 {
@@ -111,7 +110,7 @@ namespace Kanban_Board
             bool exit = false;
             while (!exit)
             {
-                GUI.Menu.DisplayMenu();
+                GUI.MainMenu.DisplayMenu();
 
                 if (!int.TryParse(Console.ReadLine(), out int response))
                 {
@@ -123,13 +122,13 @@ namespace Kanban_Board
                 switch (response)
                 {
                     case 1:
-                        GUI.Menu.DisplayBoards();
+                        GUI.MainMenu.DisplayBoards();
                         break;
                     case 2:
-                        GUI.Menu.DisplayLists();
+                        GUI.MainMenu.DisplayLists();
                         break;
                     case 3:
-                        GUI.Menu.DisplayTasks(taskManager);
+                        GUI.MainMenu.DisplayTasks(taskManager);
                         if (loggedInUser != null) taskManager.SaveTasks(loggedInUser); //auto save after exiting
                         break;
                     case 4:
@@ -142,7 +141,7 @@ namespace Kanban_Board
                         Thread.Sleep(1000);
                         break;
                     default:
-                        GUI.Menu.DisplayMenu();
+                        GUI.MainMenu.DisplayMenu();
                         break;
                 }
             }
