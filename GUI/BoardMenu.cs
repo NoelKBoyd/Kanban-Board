@@ -1,9 +1,169 @@
-﻿using static Kanban_Board.GUI.InputHelper;
+﻿using Kanban_Board.Classes;
+using Kanban_Board.Services;
 
 namespace Kanban_Board.GUI
 {
     internal class BoardMenu
     {
+        public static void ViewBoards(BoardManager boardManager, bool pause = true)
+        {
+            Console.Clear();
+            List<KanbanBoard> boardList = boardManager.GetBoards();
+            Console.WriteLine("--- All Boards ---");
+            if (boardList.Count == 0)
+            {
+                Console.WriteLine("No boards to display. Please create a board first.");
+                if (!pause)
+                {
+                    Console.WriteLine("Press any key to return.");
+                    Console.ReadKey();
+                    Console.Clear();
+                    return;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < boardList.Count; i++)
+                {
+                    KanbanBoard board = boardList[i];
 
+                    Console.WriteLine($"ID: {board.Id}");
+                    Console.WriteLine($"Title: {board.Title}");
+                    Console.WriteLine($"Description: {board.Description}");
+                    Console.WriteLine($"Status: {board.Status}");
+                    Console.WriteLine("-----------------");
+                }
+            }
+
+            if (pause)
+            {
+                Console.WriteLine("Press any key to return to the menu.");
+                Console.ReadKey();
+                Console.Clear();
+            }
+        }
+
+        public static void CreateBoard(BoardManager boardManager)
+        {
+            Console.Clear();
+            string title = "";
+            while (string.IsNullOrWhiteSpace(title))
+            {
+                Console.Clear();
+                Console.WriteLine("--- Title ---");
+
+                string input = Console.ReadLine();
+
+                if (!string.IsNullOrWhiteSpace(input))
+                {
+                    title = input;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Error: Title cannot be empty.");
+                    Console.ResetColor();
+                    Console.WriteLine("Press any key to try again...");
+                    Console.ReadKey();
+                }
+            }
+            Console.Clear();
+            Console.WriteLine("--- Description ---");
+            string description = Console.ReadLine() ?? "";
+            Console.Clear();
+            boardManager.CreateBoard(title, description);
+            Console.WriteLine("List created!");
+            Thread.Sleep(1000);
+            Console.Clear();
+        }
+
+        public static void EditBoard(BoardManager boardManager)
+        {
+            Console.Clear();
+            ViewBoards(boardManager, pause: false);
+
+            Console.WriteLine("\nEnter the ID of the board you want to edit:");
+            Console.WriteLine("Or press Enter to cancel.");
+            Console.WriteLine("");
+            if (int.TryParse(Console.ReadLine(), out int inputId))
+            {
+                KanbanBoard boardToEdit = boardManager.GetBoardById(inputId);
+
+                if (boardToEdit != null)
+                {
+                    Console.WriteLine("");
+                    Console.WriteLine($"Editing List: {boardToEdit.Title}");
+                    Console.WriteLine("");
+                    Console.WriteLine("Which field would you like to update?");
+                    Console.WriteLine("1. Title");
+                    Console.WriteLine("2. Description");
+                    Console.WriteLine("3. Cancel");
+                    Console.WriteLine("");
+
+                    if (int.TryParse(Console.ReadLine(), out int choice))
+                    {
+                        switch (choice)
+                        {
+
+                            case 1:
+                                Console.WriteLine("");
+                                Console.WriteLine("Enter new Title:");
+                                string newTitle = Console.ReadLine();
+                                if (!string.IsNullOrWhiteSpace(newTitle))
+                                    boardToEdit.Title = newTitle;
+                                break;
+                            case 2:
+                                Console.WriteLine("");
+                                Console.WriteLine("Enter new Description:");
+                                boardToEdit.Description = Console.ReadLine();
+                                break;
+                            default:
+                                Console.WriteLine("");
+                                Console.WriteLine("Edit cancelled.");
+                                return;
+                        }
+                        Console.WriteLine("Board updated successfully!");
+                        Console.WriteLine("Press enter to return to the menu");
+                        Console.Clear();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Board not found with that ID.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid ID format.");
+                }
+            }
+        }
+
+        public static void DeleteBoard(BoardManager boardManager)
+        {
+            Console.Clear();
+            ViewBoards(boardManager, pause: false);
+            Console.WriteLine("\nEnter the ID of the board you want to delete:");
+            string? input = Console.ReadLine();
+            if (int.TryParse(input, out int response))
+            {
+                KanbanBoard boardToDelete = boardManager.GetBoardById(response);
+                if (boardToDelete != null)
+                {
+                    boardManager.DeleteBoard(boardToDelete);
+                    Console.WriteLine("Board deleted successfully!");
+                    Console.WriteLine("Press any key to return to the menu.");
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.WriteLine("Board not found with that ID.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Invalid ID format.");
+            }
+        }
     }
 }

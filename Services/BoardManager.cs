@@ -1,9 +1,5 @@
 ﻿using Kanban_Board.Classes;
 using Kanban_Board.Enums;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace Kanban_Board.Services
 {
@@ -42,6 +38,11 @@ namespace Kanban_Board.Services
             }
         }
 
+        public void DeleteBoard(KanbanBoard board)
+        {
+            _boards.Remove(board);
+        }
+
         // --- BINARY SAVE/LOAD IMPLEMENTATION ---
 
         public void SaveBoards(User user)
@@ -63,7 +64,7 @@ namespace Kanban_Board.Services
 
                     foreach (var list in board.Lists) //write list data
                     {
- 
+
                         writer.Write(list.Id);
                         writer.Write(list.Title ?? "");
                         writer.Write(list.Description ?? "");

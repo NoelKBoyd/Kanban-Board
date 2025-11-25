@@ -1,8 +1,5 @@
 ﻿using Kanban_Board.Classes;
-using Kanban_Board.Enums;
 using Kanban_Board.Services;
-using System.Diagnostics;
-using static Kanban_Board.GUI.InputHelper;
 
 namespace Kanban_Board.GUI
 {
@@ -85,38 +82,46 @@ namespace Kanban_Board.GUI
 
             Console.WriteLine("\nEnter the ID of the list you want to edit:");
             Console.WriteLine("Or press Enter to cancel.");
+            Console.WriteLine("");
             if (int.TryParse(Console.ReadLine(), out int inputId))
             {
                 KanbanList listToEdit = listManager.GetListById(inputId);
 
                 if (listToEdit != null)
                 {
+                    Console.WriteLine("");
                     Console.WriteLine($"Editing List: {listToEdit.Title}");
+                    Console.WriteLine("");
                     Console.WriteLine("Which field would you like to update?");
                     Console.WriteLine("1. Title");
                     Console.WriteLine("2. Description");
                     Console.WriteLine("3. Cancel");
+                    Console.WriteLine("");
 
                     if (int.TryParse(Console.ReadLine(), out int choice))
                     {
                         switch (choice)
                         {
                             case 1:
+                                Console.WriteLine("");
                                 Console.WriteLine("Enter new Title:");
                                 string newTitle = Console.ReadLine();
                                 if (!string.IsNullOrWhiteSpace(newTitle))
                                     listToEdit.Title = newTitle;
                                 break;
                             case 2:
+                                Console.WriteLine("");
                                 Console.WriteLine("Enter new Description:");
                                 listToEdit.Description = Console.ReadLine();
                                 break;
                             default:
+                                Console.WriteLine("");
                                 Console.WriteLine("Edit cancelled.");
                                 return;
                         }
                         Console.WriteLine("List updated successfully!");
                         Console.WriteLine("Press enter to return to the menu");
+                        Console.Clear();
                     }
                     else
                     {

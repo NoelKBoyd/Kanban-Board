@@ -1,7 +1,4 @@
 ﻿using Kanban_Board.Services;
-using static Kanban_Board.GUI.TaskMenu;
-using static Kanban_Board.GUI.ListMenu;
-using static Kanban_Board.GUI.BoardMenu;
 
 namespace Kanban_Board.GUI
 {
@@ -58,7 +55,6 @@ namespace Kanban_Board.GUI
                             return;
                         default:
                             Console.WriteLine("Invalid option. Please try again.");
-                            Console.ReadKey();
                             break;
                     }
                 }
@@ -103,7 +99,6 @@ namespace Kanban_Board.GUI
                             ListMenu.DeleteList(listManager);
                             break;
                         case 5:
-                            
                             break;
                         case 6: // Exit to Main Menu
                             return;
@@ -141,18 +136,23 @@ namespace Kanban_Board.GUI
                     switch (response)
                     {
                         case 1:
-                            // View Boards
+                            Console.Clear();
+                            BoardMenu.ViewBoards(boardManager);
                             break;
                         case 2:
-                            // Create Boards
+                            Console.Clear();
+                            BoardMenu.CreateBoard(boardManager);
                             break;
                         case 3:
-                            // Edit Boards
+                            Console.Clear();
+                            BoardMenu.EditBoard(boardManager);
                             break;
                         case 4:
-                            // Delete Boards
+                            Console.Clear();
+                            BoardMenu.DeleteBoard(boardManager);
                             break;
                         case 5:
+                            Console.Clear();
                             // Add Lists to Boards
                             break;
                         case 6: // Exit to Main Menu

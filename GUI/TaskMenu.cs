@@ -19,6 +19,7 @@ namespace Kanban_Board.GUI
                 {
                     Console.WriteLine("Press any key to return.");
                     Console.ReadKey();
+                    Console.Clear();
                     return;
                 }
             }
@@ -42,6 +43,7 @@ namespace Kanban_Board.GUI
             {
                 Console.WriteLine("Press any key to return to the menu.");
                 Console.ReadKey();
+                Console.Clear();
             }
         }
 
@@ -52,7 +54,6 @@ namespace Kanban_Board.GUI
             {
                 Console.Clear();
                 Console.WriteLine("--- Title ---");
-                Console.WriteLine("(Title is required)");
 
                 string input = Console.ReadLine();
 
@@ -91,6 +92,7 @@ namespace Kanban_Board.GUI
 
             Console.WriteLine("Task created successfully!");
             Thread.Sleep(1000);
+            Console.Clear();
         }
 
         public static void EditTask(TaskManager taskManager)
@@ -100,13 +102,17 @@ namespace Kanban_Board.GUI
 
             Console.WriteLine("\nEnter the ID of the task you want to edit:");
             Console.WriteLine("Or press Enter to cancel.");
+            Console.WriteLine("");
+
             if (int.TryParse(Console.ReadLine(), out int inputId))
             {
                 KanbanTask taskToEdit = taskManager.GetTaskById(inputId);
 
                 if (taskToEdit != null)
                 {
+                    Console.WriteLine("");
                     Console.WriteLine($"Editing Task: {taskToEdit.Title}");
+                    Console.WriteLine("");
                     Console.WriteLine("Which field would you like to update?");
                     Console.WriteLine("1. Title");
                     Console.WriteLine("2. Description");
@@ -114,39 +120,47 @@ namespace Kanban_Board.GUI
                     Console.WriteLine("4. Priority");
                     Console.WriteLine("5. Deadline");
                     Console.WriteLine("6. Cancel");
+                    Console.WriteLine("");
 
                     if (int.TryParse(Console.ReadLine(), out int choice))
                     {
                         switch (choice)
                         {
                             case 1:
+                                Console.WriteLine("");
                                 Console.WriteLine("Enter new Title:");
                                 string newTitle = Console.ReadLine();
                                 if (!string.IsNullOrWhiteSpace(newTitle))
                                     taskToEdit.Title = newTitle;
                                 break;
                             case 2:
+                                Console.WriteLine("");
                                 Console.WriteLine("Enter new Description:");
                                 taskToEdit.Description = Console.ReadLine();
                                 break;
                             case 3:
+                                Console.WriteLine("");
                                 Console.WriteLine("Select new Status:");
                                 taskToEdit.Status = GetStatusFromUser();
                                 break;
                             case 4:
+                                Console.WriteLine("");
                                 Console.WriteLine("Select new Priority:");
                                 taskToEdit.Priority = GetPriorityFromUser();
                                 break;
                             case 5:
+                                Console.WriteLine("");
                                 Console.WriteLine("Select new Deadline:");
                                 taskToEdit.Deadline = GetDeadlineFromUser();
                                 break;
                             default:
+                                Console.WriteLine("");
                                 Console.WriteLine("Edit cancelled.");
                                 return;
                         }
                         Console.WriteLine("Task updated successfully!");
                         Console.WriteLine("Press enter to return to the menu");
+                        Console.Clear();
                     }
                     else
                     {
@@ -175,6 +189,7 @@ namespace Kanban_Board.GUI
                     Console.WriteLine("Task deleted successfully!");
                     Console.WriteLine("Press any key to return to the menu.");
                     Console.ReadKey();
+                    Console.Clear();
                 }
                 else
                 {
