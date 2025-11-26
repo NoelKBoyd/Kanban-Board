@@ -66,7 +66,7 @@ namespace Kanban_Board.GUI
             }
         }
 
-        public static void DisplayLists(ListManager listManager)
+        public static void DisplayLists(ListManager listManager, TaskManager taskManager)
         {
             Console.Clear();
             while (true)
@@ -99,6 +99,7 @@ namespace Kanban_Board.GUI
                             ListMenu.DeleteList(listManager);
                             break;
                         case 5:
+                            ListMenu.MoveTasksToList(listManager, taskManager);
                             break;
                         case 6: // Exit to Main Menu
                             return;

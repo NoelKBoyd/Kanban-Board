@@ -1,6 +1,5 @@
 ﻿using Kanban_Board.Classes;
 using Kanban_Board.Services;
-using System.Reflection;
 using System.Text.Json;
 
 namespace Kanban_Board
@@ -28,6 +27,8 @@ namespace Kanban_Board
                     }
 
                     string[] taskFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*_tasks.bin");
+                    string[] listFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*_lists.bin");
+                    string[] boardFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*_boards.bin");
 
                     if (taskFiles.Length > 0)
                     {
@@ -37,9 +38,25 @@ namespace Kanban_Board
                             PrintColored($"Deleted task file: {Path.GetFileName(file)}", ConsoleColor.Green);
                         }
                     }
+                    if (listFiles.Length > 0)
+                    {
+                        foreach (string file in listFiles)
+                        {
+                            File.Delete(file);
+                            PrintColored($"Deleted task file: {Path.GetFileName(file)}", ConsoleColor.Green);
+                        }
+                    }
+                    if (boardFiles.Length > 0)
+                    {
+                        foreach (string file in boardFiles)
+                        {
+                            File.Delete(file);
+                            PrintColored($"Deleted task file: {Path.GetFileName(file)}", ConsoleColor.Green);
+                        }
+                    }
                     else
                     {
-                        PrintColored("No task files found to clean.", ConsoleColor.Cyan);
+                        PrintColored("No task, list or board files found to clean.", ConsoleColor.Cyan);
                     }
 
                     PrintColored("System reset complete. Starting fresh.", ConsoleColor.Green);
@@ -131,14 +148,14 @@ namespace Kanban_Board
                             boardManager.SaveBoards(loggedInUser);
                         break;
                     case 2:
-                        GUI.MainMenu.DisplayLists(listManager);
+                        GUI.MainMenu.DisplayLists(listManager, taskManager);
                         if (loggedInUser != null)
                             listManager.SaveLists(loggedInUser);
                         break;
                     case 3:
                         GUI.MainMenu.DisplayTasks(taskManager);
-                        if (loggedInUser != null) 
-                            taskManager.SaveTasks(loggedInUser); 
+                        if (loggedInUser != null)
+                            taskManager.SaveTasks(loggedInUser);
                         break;
                     case 4:
                         exit = true;

@@ -9,37 +9,83 @@ namespace Kanban_Board.GUI
         {
             Console.Clear();
             List<KanbanList> listList = listManager.GetLists();
-            Console.WriteLine("--- All Lists ---");
+
+            Console.WriteLine("--- Kanban Board Lists ---");
+
             if (listList.Count == 0)
             {
                 Console.WriteLine("No lists to display. Please create a list first.");
-                if (!pause)
+                if (pause)
                 {
-                    Console.WriteLine("Press any key to return.");
+                    Console.WriteLine("\nPress any key to return.");
                     Console.ReadKey();
-                    Console.Clear();
-                    return;
                 }
+                return;
             }
-            else
+
+            foreach (var list in listList)
             {
-                for (int i = 0; i < listList.Count; i++)
+                Console.WriteLine($"ID: {list.Id} | {list.Title} | ({list.Tasks.Count} Tasks)");
+                Console.WriteLine($"Status: {list.Status}");
+                Console.WriteLine("--------------------------");
+            }
+
+            // if pause is false, this function is being used as a helper 
+            // (e.g. by MoveTasks), so we exit immediately so the other function can continue.
+            if (!pause) return;
+
+            while (true)
+            {
+                Console.WriteLine("\nOptions:");
+                Console.WriteLine("- Enter a [List ID] to view its tasks");
+                Console.WriteLine("- Press [Enter] to return to the menu");
+                Console.Write("> ");
+
+                string? input = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(input)) break;
+
+                if (int.TryParse(input, out int listId))
                 {
-                    KanbanList list = listList[i];
+                    KanbanList? selectedList = listManager.GetListById(listId);
 
-                    Console.WriteLine($"ID: {list.Id}");
-                    Console.WriteLine($"Title: {list.Title}");
-                    Console.WriteLine($"Description: {list.Description}");
-                    Console.WriteLine($"Status: {list.Status}");
-                    Console.WriteLine("-----------------");
+                    if (selectedList != null)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine($"\n--- Tasks in '{selectedList.Title}' ---");
+                        Console.ResetColor();
+
+                        if (selectedList.Tasks.Count == 0)
+                        {
+                            Console.WriteLine("  (This list is empty)");
+                        }
+                        else
+                        {
+                            foreach (var task in selectedList.Tasks)
+                            {
+                                Console.WriteLine($"ID: {task.Id}");
+                                Console.WriteLine($"Title: {task.Title}");
+                                Console.WriteLine($"Description: {task.Description}");
+                                Console.WriteLine($"Status: {task.Status}");
+                                Console.WriteLine($"Priority: {task.Priority}");
+                                Console.WriteLine($"Deadline: {task.Deadline.ToShortDateString()}");
+                                Console.WriteLine("-----------------");
+                            }
+                        }
+                        Console.WriteLine("-----------------------");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"List with ID {listId} not found.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid format. Please enter a number.");
                 }
             }
 
-            if (pause)
-            {
-                Console.WriteLine("Press any key to return to the menu.");
-                Console.ReadKey();
-            }
+            Console.Clear();
         }
 
         public static void CreateList(ListManager listManager)
@@ -158,7 +204,72 @@ namespace Kanban_Board.GUI
             }
             else
             {
+
+            }
+            {
                 Console.WriteLine("Invalid ID format.");
+            }
+        }
+
+        public static void MoveTasksToList(ListManager listManager, TaskManager taskManager)
+        {
+            Console.Clear();
+            ViewLists(listManager, pause: false);
+
+            Console.WriteLine("\n--- Move/Add Tasks ---");
+            Console.WriteLine("Enter the ID of the DESTINATION List:");
+
+            if (!int.TryParse(Console.ReadLine(), out int targetListId))
+            {
+                Console.WriteLine("Invalid ID format.");
+                return;
+            }
+
+            var allTasks = taskManager.GetTasks();
+            if (allTasks.Count == 0)
+            {
+                Console.WriteLine("There are no available tasks.");
+                return;
+            }
+
+            Console.WriteLine("\nAvailable Tasks:");
+            foreach (var task in allTasks)
+            {
+                Console.WriteLine($"ID: {task.Id} | Title: {task.Title}");
+            }
+
+            Console.WriteLine("\nEnter the IDs of the tasks to move/add (comma separated):");
+            string? taskInput = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(taskInput)) return;
+
+            string[] taskIds = taskInput.Split(',');
+            int successCount = 0;
+
+            foreach (var idStr in taskIds)
+            {
+                if (int.TryParse(idStr.Trim(), out int taskId))
+                {
+                    KanbanTask? taskObj = taskManager.GetTaskById(taskId);
+
+                    if (taskObj != null)
+                    {
+                        bool success = listManager.AddOrMoveTask(taskObj, targetListId);
+
+                        if (success) successCount++;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Task ID {taskId} does not exist in the database.");
+                    }
+                }
+            }
+
+            if (successCount > 0)
+            {
+                Console.WriteLine($"\nSuccessfully processed {successCount} task(s)!");
+                Thread.Sleep(1000);
+                Console.Clear();
             }
         }
     }

@@ -9,6 +9,7 @@ namespace Kanban_Board.GUI
     {
         public static void ViewTasks(TaskManager taskManager, bool pause = true)
         {
+            Console.Clear();
             List<KanbanTask> taskList = taskManager.GetTasks();
 
             Console.WriteLine("--- All Tasks ---");

@@ -1,10 +1,5 @@
 ﻿using Kanban_Board.Classes;
 using Kanban_Board.Enums;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Kanban_Board.Services
 {
@@ -38,6 +33,33 @@ namespace Kanban_Board.Services
         public void DeleteList(KanbanList list)
         {
             _lists.Remove(list);
+        }
+
+        public bool AddOrMoveTask(KanbanTask taskToMove, int targetColumnId)
+        {
+            var targetColumn = _lists.FirstOrDefault(l => l.Id == targetColumnId);
+            if (targetColumn == null)
+            {
+                Console.WriteLine($"Error: Target list with ID {targetColumnId} not found.");
+                return false;
+            }
+
+            var currentOwnerList = _lists.FirstOrDefault(l => l.Tasks.Any(t => t.Id == taskToMove.Id));
+
+            if (currentOwnerList != null)
+            {
+                if (currentOwnerList == targetColumn)
+                {
+                    Console.WriteLine("Task is already in this list.");
+                    return false;
+                }
+
+                currentOwnerList.Tasks.Remove(taskToMove);
+            }
+
+            targetColumn.Tasks.Add(taskToMove);
+
+            return true;
         }
 
         // --- BINARY SAVE/LOAD IMPLEMENTATION ---
