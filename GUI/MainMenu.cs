@@ -115,7 +115,7 @@ namespace Kanban_Board.GUI
             }
         }
 
-        public static void DisplayBoards(BoardManager boardManager)
+        public static void DisplayBoards(BoardManager boardManager, ListManager listManager)
         {
             Console.Clear();
             while (true)
@@ -154,7 +154,7 @@ namespace Kanban_Board.GUI
                             break;
                         case 5:
                             Console.Clear();
-                            // Add Lists to Boards
+                            BoardMenu.MoveListsToBoard(boardManager, listManager);
                             break;
                         case 6: // Exit to Main Menu
                             return;

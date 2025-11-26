@@ -235,7 +235,7 @@ namespace Kanban_Board.GUI
             Console.WriteLine("\nAvailable Tasks:");
             foreach (var task in allTasks)
             {
-                Console.WriteLine($"ID: {task.Id} | Title: {task.Title}");
+                Console.WriteLine($"ID: {task.Id} | Title: {task.Title} | Description: {task.Description}");
             }
 
             Console.WriteLine("\nEnter the IDs of the tasks to move/add (comma separated):");

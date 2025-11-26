@@ -35,14 +35,59 @@ namespace Kanban_Board.GUI
                 }
             }
 
-            if (pause)
-            {
-                Console.WriteLine("Press any key to return to the menu.");
-                Console.ReadKey();
-                Console.Clear();
-            }
-        }
+            if (!pause) return;
 
+            while (true)
+            {
+                Console.WriteLine("\nOptions:");
+                Console.WriteLine("- Enter a [board ID] to view its lists");
+                Console.WriteLine("- Press [Enter] to return to the menu");
+                Console.Write("> ");
+
+                string? input = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(input)) break;
+
+                if (int.TryParse(input, out int boardId))
+                {
+                    KanbanBoard? selectedBoard = boardManager.GetBoardById(boardId);
+
+                    if (selectedBoard != null)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine($"\n--- Lists in '{selectedBoard.Title}' ---");
+                        Console.ResetColor();
+
+                        if (selectedBoard.Lists.Count == 0)
+                        {
+                            Console.WriteLine("  (This board is empty)");
+                        }
+                        else
+                        {
+                            foreach (var list in selectedBoard.Lists)
+                            {
+                                Console.WriteLine($"ID: {list.Id}");
+                                Console.WriteLine($"Title: {list.Title}");
+                                Console.WriteLine($"Description: {list.Description}");
+                                Console.WriteLine($"Status: {list.Status}");
+                                Console.WriteLine("-----------------");
+                            }
+                        }
+                        Console.WriteLine("-----------------------");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Board with ID {boardId} not found.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid format. Please enter a number.");
+                }
+            }
+
+            Console.Clear();
+        }
         public static void CreateBoard(BoardManager boardManager)
         {
             Console.Clear();
@@ -72,7 +117,7 @@ namespace Kanban_Board.GUI
             string description = Console.ReadLine() ?? "";
             Console.Clear();
             boardManager.CreateBoard(title, description);
-            Console.WriteLine("List created!");
+            Console.WriteLine("Board created!");
             Thread.Sleep(1000);
             Console.Clear();
         }
@@ -165,5 +210,68 @@ namespace Kanban_Board.GUI
                 Console.WriteLine("Invalid ID format.");
             }
         }
+
+        public static void MoveListsToBoard(BoardManager boardManager, ListManager listManager)
+        {
+            Console.Clear();
+            ViewBoards(boardManager, pause: false);
+
+            Console.WriteLine("\n--- Move/Add Lists ---");
+            Console.WriteLine("Enter the ID of the DESTINATION Board:");
+
+            if (!int.TryParse(Console.ReadLine(), out int targetListId))
+            {
+                Console.WriteLine("Invalid ID format.");
+                return;
+            }
+
+            var allLists = listManager.GetLists();
+            if (allLists.Count == 0)
+            {
+                Console.WriteLine("There are no available lists.");
+                return;
+            }
+
+            Console.WriteLine("\nAvailable Lists:");
+            foreach (var list in allLists)
+            {
+                Console.WriteLine($"ID: {list.Id} | Title: {list.Title} | Description: {list.Description}");
+            }
+
+            Console.WriteLine("\nEnter the IDs of the lists to move/add (comma separated):");
+            string? listInput = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(listInput)) return;
+
+            string[] listIds = listInput.Split(',');
+            int successCount = 0;
+
+            foreach (var idStr in listIds)
+            {
+                if (int.TryParse(idStr.Trim(), out int listId))
+                {
+                    KanbanList? listObj = listManager.GetListById(listId);
+
+                    if (listObj != null)
+                    {
+                        bool success = boardManager.AddOrMoveList(listObj, targetListId);
+
+                        if (success) successCount++;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"List ID {listId} does not exist in the database.");
+                    }
+                }
+            }
+
+            if (successCount > 0)
+            {
+                Console.WriteLine($"\nSuccessfully processed {successCount} list(s)!");
+                Thread.Sleep(1000);
+                Console.Clear();
+            }
+        }
     }
 }
+

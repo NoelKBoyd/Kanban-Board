@@ -30,12 +30,31 @@ namespace Kanban_Board.Services
             return _boards.FirstOrDefault(b => b.Id == id);
         }
 
-        public void AddListToBoard(int boardIndex, KanbanList list)
+        public bool AddOrMoveList(KanbanList listToMove, int targetColumnId)
         {
-            if (boardIndex >= 0 && boardIndex < _boards.Count)
+            var targetColumn = _boards.FirstOrDefault(l => l.Id == targetColumnId);
+            if (targetColumn == null)
             {
-                _boards[boardIndex].Lists.Add(list);
+                Console.WriteLine($"Error: Target board with ID {targetColumnId} not found.");
+                return false;
             }
+
+            var currentOwnerList = _boards.FirstOrDefault(l => l.Lists.Any(t => t.Id == listToMove.Id));
+
+            if (currentOwnerList != null)
+            {
+                if (currentOwnerList == targetColumn)
+                {
+                    Console.WriteLine("Task is already in this list.");
+                    return false;
+                }
+
+                currentOwnerList.Lists.Remove(listToMove);
+            }
+
+            targetColumn.Lists.Add(listToMove);
+
+            return true;
         }
 
         public void DeleteBoard(KanbanBoard board)

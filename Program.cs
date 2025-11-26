@@ -143,7 +143,7 @@ namespace Kanban_Board
                 switch (response)
                 {
                     case 1:
-                        GUI.MainMenu.DisplayBoards(boardManager);
+                        GUI.MainMenu.DisplayBoards(boardManager, listManager);
                         if (loggedInUser != null)
                             boardManager.SaveBoards(loggedInUser);
                         break;
