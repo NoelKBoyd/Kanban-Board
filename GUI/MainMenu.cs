@@ -87,16 +87,16 @@ namespace Kanban_Board.GUI
                     switch (response)
                     {
                         case 1:
-                            ListMenu.ViewLists(listManager);
+                            ListMenu.ViewLists(listManager, taskManager);
                             break;
                         case 2:
                             ListMenu.CreateList(listManager);
                             break;
                         case 3:
-                            ListMenu.EditList(listManager);
+                            ListMenu.EditList(listManager, taskManager);
                             break;
                         case 4:
-                            ListMenu.DeleteList(listManager);
+                            ListMenu.DeleteList(listManager, taskManager);
                             break;
                         case 5:
                             ListMenu.MoveTasksToList(listManager, taskManager);

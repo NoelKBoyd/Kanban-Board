@@ -15,7 +15,7 @@ namespace Kanban_Board.Services
                 Id = _nextListId++,
                 Title = title,
                 Description = description,
-                Tasks = new List<KanbanTask>()
+                TaskIds = new List<int>(),
             };
             _lists.Add(newList);
         }
@@ -35,7 +35,7 @@ namespace Kanban_Board.Services
             _lists.Remove(list);
         }
 
-        public bool AddOrMoveTask(KanbanTask taskToMove, int targetColumnId)
+        public bool AddOrMoveTask(int taskId, int targetColumnId)
         {
             var targetColumn = _lists.FirstOrDefault(l => l.Id == targetColumnId);
             if (targetColumn == null)
@@ -44,7 +44,7 @@ namespace Kanban_Board.Services
                 return false;
             }
 
-            var currentOwnerList = _lists.FirstOrDefault(l => l.Tasks.Any(t => t.Id == taskToMove.Id));
+            var currentOwnerList = _lists.FirstOrDefault(l => l.TaskIds.Any(id => id == taskId));
 
             if (currentOwnerList != null)
             {
@@ -54,10 +54,10 @@ namespace Kanban_Board.Services
                     return false;
                 }
 
-                currentOwnerList.Tasks.Remove(taskToMove);
+                currentOwnerList.TaskIds.Remove(taskId);
             }
 
-            targetColumn.Tasks.Add(taskToMove);
+            targetColumn.TaskIds.Add(taskId);
 
             return true;
         }
@@ -79,18 +79,11 @@ namespace Kanban_Board.Services
                     writer.Write(list.Id);
                     writer.Write(list.Title ?? "Untitled");
                     writer.Write(list.Description ?? "");
-
-                    //write number of Tasks in this exact List
-                    writer.Write(list.Tasks.Count);
-
-                    foreach (var task in list.Tasks)
+                    writer.Write((int)list.Status);
+                    writer.Write(list.TaskIds.Count);
+                    foreach (var taskId in list.TaskIds)
                     {
-                        writer.Write(task.Id);
-                        writer.Write(task.Title ?? "");
-                        writer.Write(task.Description ?? "");
-                        writer.Write((int)task.Status);
-                        writer.Write(task.Deadline.ToBinary());
-                        writer.Write((int)task.Priority);
+                        writer.Write(taskId);
                     }
                 }
             }
@@ -123,35 +116,30 @@ namespace Kanban_Board.Services
                         int listId = reader.ReadInt32();
                         string listTitle = reader.ReadString();
                         string listDesc = reader.ReadString();
+                        Status listStatus = (Status)reader.ReadInt32(); // Read status
 
                         KanbanList newList = new KanbanList
                         {
                             Id = listId,
                             Title = listTitle,
                             Description = listDesc,
-                            Tasks = new List<KanbanTask>()
+                            Status = listStatus,
+                            TaskIds = new List<int>() // Initialize TaskIds
                         };
 
-                        int taskCount = reader.ReadInt32();
+                        //read number of Task Ids
+                        int taskIdCount = reader.ReadInt32();
 
-                        //Read each Task from the list
-                        for (int j = 0; j < taskCount; j++)
+                        //read each Task ID from the list
+                        for (int j = 0; j < taskIdCount; j++)
                         {
                             int taskId = reader.ReadInt32();
-                            string tTitle = reader.ReadString();
-                            string tDesc = reader.ReadString();
-                            Status tStatus = (Status)reader.ReadInt32();
-                            DateTime tDeadline = DateTime.FromBinary(reader.ReadInt64());
-                            Priority tPriority = (Priority)reader.ReadInt32();
-
-                            KanbanTask newTask = new KanbanTask(taskId, tTitle, tDesc, tStatus, tDeadline, tPriority);
-                            newList.Tasks.Add(newTask);
+                            newList.TaskIds.Add(taskId);
                         }
 
                         _lists.Add(newList);
                     }
 
-                    //Update _nextListId
                     if (_lists.Count > 0)
                     {
                         _nextListId = _lists.Max(l => l.Id) + 1;

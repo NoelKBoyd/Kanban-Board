@@ -78,27 +78,20 @@ namespace Kanban_Board.Services
                     writer.Write(board.Id);
                     writer.Write(board.Title ?? "Untitled");
                     writer.Write(board.Description ?? "");
+                    writer.Write((int)board.Status);
 
                     writer.Write(board.Lists.Count);
 
                     foreach (var list in board.Lists) //write list data
                     {
-
                         writer.Write(list.Id);
                         writer.Write(list.Title ?? "");
                         writer.Write(list.Description ?? "");
                         writer.Write((int)list.Status);
-
-                        writer.Write(list.Tasks.Count);
-
-                        foreach (var task in list.Tasks) //write the tasks in the list
+                        writer.Write(list.TaskIds.Count);//write number of Task Ids
+                        foreach (var taskId in list.TaskIds)//write only the Task Ids
                         {
-                            writer.Write(task.Id);
-                            writer.Write(task.Title ?? "");
-                            writer.Write(task.Description ?? "");
-                            writer.Write((int)task.Status);
-                            writer.Write(task.Deadline.ToBinary());
-                            writer.Write((int)task.Priority);
+                            writer.Write(taskId);
                         }
                     }
                 }
@@ -131,12 +124,14 @@ namespace Kanban_Board.Services
                         int boardId = reader.ReadInt32();
                         string boardTitle = reader.ReadString();
                         string boardDesc = reader.ReadString();
+                        Status boardStatus = (Status)reader.ReadInt32();
 
                         KanbanBoard newBoard = new KanbanBoard
                         {
                             Id = boardId,
                             Title = boardTitle,
                             Description = boardDesc,
+                            Status = boardStatus,
                             Lists = new List<KanbanList>()
                         };
 
@@ -149,8 +144,6 @@ namespace Kanban_Board.Services
                             string listTitle = reader.ReadString();
                             string listDesc = reader.ReadString();
                             Status listStatus = (Status)reader.ReadInt32();
-                            DateTime listDeadline = DateTime.FromBinary(reader.ReadInt64());
-                            Priority listPriority = (Priority)reader.ReadInt32();
 
                             KanbanList newList = new KanbanList
                             {
@@ -158,24 +151,16 @@ namespace Kanban_Board.Services
                                 Title = listTitle,
                                 Description = listDesc,
                                 Status = listStatus,
-                                Tasks = new List<KanbanTask>()
+                                TaskIds = new List<int>() // use TaskIds
                             };
 
-                            //read number of tasks in this list
-                            int taskCount = reader.ReadInt32();
+                            
+                            int taskIdCount = reader.ReadInt32();//read number of tasks in this list
 
-                            for (int k = 0; k < taskCount; k++)
+                            for (int k = 0; k < taskIdCount; k++)
                             {
-                                //read task data
-                                int taskId = reader.ReadInt32();
-                                string tTitle = reader.ReadString();
-                                string tDesc = reader.ReadString();
-                                Status tStatus = (Status)reader.ReadInt32();
-                                DateTime tDeadline = DateTime.FromBinary(reader.ReadInt64());
-                                Priority tPriority = (Priority)reader.ReadInt32();
-
-                                KanbanTask newTask = new KanbanTask(taskId, tTitle, tDesc, tStatus, tDeadline, tPriority);
-                                newList.Tasks.Add(newTask);
+                                int taskId = reader.ReadInt32();//read only the task ID
+                                newList.TaskIds.Add(taskId);
                             }
 
                             newBoard.Lists.Add(newList);

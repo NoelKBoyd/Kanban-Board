@@ -5,7 +5,7 @@ namespace Kanban_Board.GUI
 {
     internal class ListMenu
     {
-        public static void ViewLists(ListManager listManager, bool pause = true)
+        public static void ViewLists(ListManager listManager, TaskManager taskManager, bool pause = true)
         {
             Console.Clear();
             List<KanbanList> listList = listManager.GetLists();
@@ -25,13 +25,13 @@ namespace Kanban_Board.GUI
 
             foreach (var list in listList)
             {
-                Console.WriteLine($"ID: {list.Id} | {list.Title} | ({list.Tasks.Count} Tasks)");
+                Console.WriteLine($"ID: {list.Id} | {list.Title} | ({list.TaskIds.Count} Tasks)");
                 Console.WriteLine($"Status: {list.Status}");
                 Console.WriteLine("--------------------------");
             }
 
             // if pause is false, this function is being used as a helper 
-            // (e.g. by MoveTasks), so we exit immediately so the other function can continue.
+            // (e.g. by MoveTasks), so exit immediately so the other function can continue.
             if (!pause) return;
 
             while (true)
@@ -55,21 +55,25 @@ namespace Kanban_Board.GUI
                         Console.WriteLine($"\n--- Tasks in '{selectedList.Title}' ---");
                         Console.ResetColor();
 
-                        if (selectedList.Tasks.Count == 0)
+                        if (selectedList.TaskIds.Count == 0)
                         {
-                            Console.WriteLine("  (This list is empty)");
+                            Console.WriteLine("(This list is empty)");
                         }
                         else
                         {
-                            foreach (var task in selectedList.Tasks)
+                            foreach (var taskId in selectedList.TaskIds)
                             {
-                                Console.WriteLine($"ID: {task.Id}");
-                                Console.WriteLine($"Title: {task.Title}");
-                                Console.WriteLine($"Description: {task.Description}");
-                                Console.WriteLine($"Status: {task.Status}");
-                                Console.WriteLine($"Priority: {task.Priority}");
-                                Console.WriteLine($"Deadline: {task.Deadline.ToShortDateString()}");
-                                Console.WriteLine("-----------------");
+                                KanbanTask? task = taskManager.GetTaskById(taskId);
+                                if (task != null)
+                                {
+                                    Console.WriteLine($"ID: {task.Id}");
+                                    Console.WriteLine($"Title: {task.Title}");
+                                    Console.WriteLine($"Description: {task.Description}");
+                                    Console.WriteLine($"Status: {task.Status}");
+                                    Console.WriteLine($"Priority: {task.Priority}");
+                                    Console.WriteLine($"Deadline: {task.Deadline.ToShortDateString()}");
+                                    Console.WriteLine("-----------------");
+                                }
                             }
                         }
                         Console.WriteLine("-----------------------");
@@ -121,10 +125,10 @@ namespace Kanban_Board.GUI
             Thread.Sleep(1000);
         }
 
-        public static void EditList(ListManager listManager)
+        public static void EditList(ListManager listManager, TaskManager taskManager)
         {
             Console.Clear();
-            ViewLists(listManager, pause: false);
+            ViewLists(listManager, taskManager, pause: false);
 
             Console.WriteLine("\nEnter the ID of the list you want to edit:");
             Console.WriteLine("Or press Enter to cancel.");
@@ -181,10 +185,10 @@ namespace Kanban_Board.GUI
             }
         }
 
-        public static void DeleteList(ListManager listManager)
+        public static void DeleteList(ListManager listManager, TaskManager taskManager)
         {
             Console.Clear();
-            ViewLists(listManager, pause: false);
+            ViewLists(listManager, taskManager, pause: false);
             Console.WriteLine("\nEnter the ID of the list you want to delete:");
             string? input = Console.ReadLine();
             if (int.TryParse(input, out int response))
@@ -214,7 +218,7 @@ namespace Kanban_Board.GUI
         public static void MoveTasksToList(ListManager listManager, TaskManager taskManager)
         {
             Console.Clear();
-            ViewLists(listManager, pause: false);
+            ViewLists(listManager, taskManager, pause: false);
 
             Console.WriteLine("\n--- Move/Add Tasks ---");
             Console.WriteLine("Enter the ID of the DESTINATION List:");
@@ -254,7 +258,8 @@ namespace Kanban_Board.GUI
 
                     if (taskObj != null)
                     {
-                        bool success = listManager.AddOrMoveTask(taskObj, targetListId);
+                        //pass task ID instead of the task object
+                        bool success = listManager.AddOrMoveTask(taskId, targetListId);
 
                         if (success) successCount++;
                     }
