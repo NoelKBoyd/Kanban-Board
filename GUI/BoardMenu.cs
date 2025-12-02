@@ -7,36 +7,46 @@ namespace Kanban_Board.GUI
     {
         public static void ViewBoards(BoardManager boardManager, bool pause = true)
         {
-            Console.Clear();
             Dictionary<int, KanbanBoard> boardList = boardManager.GetBoards();
-            Console.WriteLine("--- All Boards ---");
-            if (boardList.Count == 0)
+
+            void PrintAllBoards()
             {
-                Console.WriteLine("No boards to display. Please create a board first.");
-                if (!pause)
+                Console.WriteLine("--- All Boards ---");
+                if (boardList.Count == 0)
                 {
-                    Console.WriteLine("Press any key to return.");
-                    Console.ReadKey();
-                    Console.Clear();
-                    return;
+                    Console.WriteLine("No boards to display. Please create a board first.");
                 }
-            }
-            else
-            {
-                foreach (var board in boardList.Values)
+                else
                 {
-                    Console.WriteLine($"ID: {board.Id}");
-                    Console.WriteLine($"Title: {board.Title}");
-                    Console.WriteLine($"Description: {board.Description}");
-                    Console.WriteLine($"Status: {board.Status}");
-                    Console.WriteLine("-----------------");
+                    var sortedBoards = boardList.Values.OrderBy(l => l.Status);
+
+                    foreach (KanbanBoard board in sortedBoards)
+                    {
+                        Console.WriteLine(board.GetDetails());
+                        Console.WriteLine("-----------------");
+                    }
                 }
             }
 
-            if (!pause) return;
+            if (!pause)
+            {
+                Console.Clear();
+                PrintAllBoards();
+                return;
+            }
 
             while (true)
             {
+                Console.Clear();
+                PrintAllBoards();
+
+                if (boardList.Count == 0)
+                {
+                    Console.WriteLine("\nPress any key to return.");
+                    Console.ReadKey();
+                    break;
+                }
+
                 Console.WriteLine("\nOptions:");
                 Console.WriteLine("- Enter a [board ID] to view its lists");
                 Console.WriteLine("- Press [Enter] to return to the menu");
@@ -52,6 +62,7 @@ namespace Kanban_Board.GUI
 
                     if (selectedBoard != null)
                     {
+                        Console.Clear();
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine($"\n--- Lists in '{selectedBoard.Title}' ---");
                         Console.ResetColor();
@@ -72,20 +83,28 @@ namespace Kanban_Board.GUI
                             }
                         }
                         Console.WriteLine("-----------------------");
+
+                        Console.WriteLine("\nPress any key to return to the board view...");
+                        Console.ReadKey();
                     }
                     else
                     {
-                        Console.WriteLine($"Board with ID {boardId} not found.");
+                        Console.WriteLine($"\nBoard with ID {boardId} not found.");
+                        Console.WriteLine("Press any key to continue.");
+                        Console.ReadKey();
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Invalid format. Please enter a number.");
+                    Console.WriteLine("\nInvalid format. Please enter a number.");
+                    Console.WriteLine("Press any key to continue.");
+                    Console.ReadKey();
                 }
             }
 
             Console.Clear();
         }
+
         public static void CreateBoard(BoardManager boardManager)
         {
             Console.Clear();
@@ -95,7 +114,7 @@ namespace Kanban_Board.GUI
                 Console.Clear();
                 Console.WriteLine("--- Title ---");
 
-                string input = Console.ReadLine();
+                string? input = Console.ReadLine();
 
                 if (!string.IsNullOrWhiteSpace(input))
                 {
@@ -113,10 +132,12 @@ namespace Kanban_Board.GUI
             Console.Clear();
             Console.WriteLine("--- Description ---");
             string description = Console.ReadLine() ?? "";
+
             Console.Clear();
             boardManager.CreateBoard(title, description);
-            Console.WriteLine("Board created!");
-            Thread.Sleep(1000);
+            Console.WriteLine("Board created successfully!");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
             Console.Clear();
         }
 
@@ -128,6 +149,7 @@ namespace Kanban_Board.GUI
             Console.WriteLine("\nEnter the ID of the board you want to edit:");
             Console.WriteLine("Or press Enter to cancel.");
             Console.WriteLine("");
+
             if (int.TryParse(Console.ReadLine(), out int inputId))
             {
                 KanbanBoard boardToEdit = boardManager.GetBoardById(inputId);
@@ -135,7 +157,7 @@ namespace Kanban_Board.GUI
                 if (boardToEdit != null)
                 {
                     Console.WriteLine("");
-                    Console.WriteLine($"Editing List: {boardToEdit.Title}");
+                    Console.WriteLine($"Editing Board: {boardToEdit.Title}");
                     Console.WriteLine("");
                     Console.WriteLine("Which field would you like to update?");
                     Console.WriteLine("1. Title");
@@ -147,18 +169,17 @@ namespace Kanban_Board.GUI
                     {
                         switch (choice)
                         {
-
                             case 1:
                                 Console.WriteLine("");
                                 Console.WriteLine("Enter new Title:");
-                                string newTitle = Console.ReadLine();
+                                string? newTitle = Console.ReadLine();
                                 if (!string.IsNullOrWhiteSpace(newTitle))
                                     boardToEdit.Title = newTitle;
                                 break;
                             case 2:
                                 Console.WriteLine("");
                                 Console.WriteLine("Enter new Description:");
-                                boardToEdit.Description = Console.ReadLine();
+                                boardToEdit.Description = Console.ReadLine() ?? "";
                                 break;
                             default:
                                 Console.WriteLine("");
@@ -167,17 +188,20 @@ namespace Kanban_Board.GUI
                         }
                         Console.WriteLine("Board updated successfully!");
                         Console.WriteLine("Press enter to return to the menu");
+                        Console.ReadKey();
                         Console.Clear();
-                    }
-                    else
-                    {
-                        Console.WriteLine("Board not found with that ID.");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Invalid ID format.");
+                    Console.WriteLine("Board not found with that ID.");
+                    Console.ReadKey();
                 }
+            }
+            else
+            {
+                Console.WriteLine("Invalid ID format.");
+                Console.ReadKey();
             }
         }
 
@@ -186,6 +210,7 @@ namespace Kanban_Board.GUI
             Console.Clear();
             ViewBoards(boardManager, pause: false);
             Console.WriteLine("\nEnter the ID of the board you want to delete:");
+
             string? input = Console.ReadLine();
             if (int.TryParse(input, out int response))
             {
@@ -194,17 +219,19 @@ namespace Kanban_Board.GUI
                 {
                     boardManager.DeleteBoard(boardToDelete);
                     Console.WriteLine("Board deleted successfully!");
-                    Thread.Sleep(1000);
+                    Console.ReadKey();
                     Console.Clear();
                 }
                 else
                 {
                     Console.WriteLine("Board not found with that ID.");
+                    Console.ReadKey();
                 }
             }
             else
             {
                 Console.WriteLine("Invalid ID format.");
+                Console.ReadKey();
             }
         }
 
@@ -219,6 +246,14 @@ namespace Kanban_Board.GUI
             if (!int.TryParse(Console.ReadLine(), out int targetBoardId))
             {
                 Console.WriteLine("Invalid ID format.");
+                Console.ReadKey();
+                return;
+            }
+
+            if (boardManager.GetBoardById(targetBoardId) == null)
+            {
+                Console.WriteLine("Destination Board not found.");
+                Console.ReadKey();
                 return;
             }
 
@@ -226,13 +261,11 @@ namespace Kanban_Board.GUI
             if (allLists.Count == 0)
             {
                 Console.WriteLine("There are no available lists to move.");
-                Thread.Sleep(1000);
-                Console.Clear();
+                Console.ReadKey();
                 return;
             }
 
             Console.WriteLine("\nAvailable Lists:");
-            //allLists is a Dictionary so iterate over .Values
             foreach (var list in allLists.Values)
             {
                 Console.WriteLine($"ID: {list.Id} | Title: {list.Title} | Description: {list.Description}");
@@ -245,36 +278,47 @@ namespace Kanban_Board.GUI
 
             string[] listIds = listInput.Split(',');
             int successCount = 0;
+            List<string> errors = new List<string>();
 
             foreach (var idStr in listIds)
             {
                 if (int.TryParse(idStr.Trim(), out int listId))
                 {
-                    //verify the list exists in the ListManager
                     KanbanList? listObj = listManager.GetListById(listId);
 
                     if (listObj != null)
                     {
-                        //pass the IDs
-    
                         bool success = boardManager.AddOrMoveList(listObj.Id, targetBoardId);
 
-                        if (success) successCount++;
+                        if (success)
+                            successCount++;
+                        else
+                            errors.Add($"ID {listId}: Failed (Already in board or error moving)");
                     }
                     else
                     {
-                        Console.WriteLine($"List ID {listId} does not exist in the database.");
+                        errors.Add($"ID {listId}: Not found in database");
                     }
+                }
+                else
+                {
+                    errors.Add($"'{idStr}' is not a valid number");
                 }
             }
 
-            if (successCount > 0)
+            Console.WriteLine($"\nSuccessfully processed {successCount} list(s)!");
+
+            if (errors.Count > 0)
             {
-                Console.WriteLine($"\nSuccessfully processed {successCount} list(s)!");
-                Thread.Sleep(1000);
-                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nErrors encountered:");
+                foreach (var error in errors) Console.WriteLine("- " + error);
+                Console.ResetColor();
             }
+
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
         }
     }
 }
-

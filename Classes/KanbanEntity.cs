@@ -1,4 +1,4 @@
-﻿using Kanban_Board.Enums; 
+﻿using Kanban_Board.Enums;
 
 namespace Kanban_Board.Classes
 {
@@ -8,6 +8,11 @@ namespace Kanban_Board.Classes
         public string Title { get; set; }
         public string? Description { get; set; }
         public virtual Status Status { get; set; }
+
+        public virtual string GetDetails()
+        {
+            return $"ID: {Id} | Title: {Title} | Status: {Status}";
+        }
     }
 }
 

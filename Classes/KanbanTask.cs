@@ -14,24 +14,14 @@ namespace Kanban_Board.Classes
             Priority = priority;
         }
 
-        public void SetStatus(Status newStatus)
+        public override string GetDetails()
         {
-            Status = newStatus;
-        }
-
-        public void MarkAsDone()
-        {
-            Status = Status.Done;
-        }
-
-        public void SetPriority(Priority newPriority)
-        {
-            Priority = newPriority;
-        }
-
-        public bool IsOverdue()
-        {
-            return Status != Status.Done && DateTime.Now > Deadline;
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+            sb.AppendLine($"ID: {Id} | {Title} ({Priority})");
+            sb.AppendLine($"Description: {Description}");
+            sb.AppendLine($"Status: {Status}");
+            sb.AppendLine($"Due: {Deadline.ToShortDateString()} ({GetTimeRemaining()})");
+            return sb.ToString();
         }
 
         public string GetTimeRemaining()
@@ -42,8 +32,8 @@ namespace Kanban_Board.Classes
 
             if (remaining.TotalDays < 0)
                 return $"Overdue by {Math.Abs(remaining.Days)} days";
-            else if (remaining.TotalDays < 1)
-                return "Due today";
+            else if (Math.Ceiling(remaining.TotalDays) <= 1)
+                return "Due today/tomorrow";
             else
                 return $"{remaining.Days} days remaining";
         }

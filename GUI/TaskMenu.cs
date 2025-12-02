@@ -26,15 +26,15 @@ namespace Kanban_Board.GUI
             }
             else
             {
-                foreach (KanbanTask task in taskList.Values)
+                var sortedTasks = taskList.Values 
+                    .OrderByDescending(t => t.Priority)
+                    .ThenBy(t => t.Deadline);
+
+                foreach (KanbanTask task in sortedTasks)
                 {
-                    Console.WriteLine($"ID: {task.Id}");
-                    Console.WriteLine($"Title: {task.Title}");
-                    Console.WriteLine($"Description: {task.Description}");
-                    Console.WriteLine($"Status: {task.Status}");
-                    Console.WriteLine($"Priority: {task.Priority}");
-                    Console.WriteLine($"Deadline: {task.Deadline.ToShortDateString()}");
-                    Console.WriteLine("-----------------");
+                    Console.WriteLine(task.GetDetails());
+                    Console.WriteLine($"Time Remaining: {task.GetTimeRemaining()}");
+                    Console.WriteLine("--------------------");
                 }
             }
 

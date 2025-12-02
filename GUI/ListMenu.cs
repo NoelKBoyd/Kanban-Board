@@ -1,6 +1,7 @@
 ﻿using Kanban_Board.Classes;
 using Kanban_Board.Services;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Kanban_Board.GUI
 {
@@ -8,40 +9,45 @@ namespace Kanban_Board.GUI
     {
         public static void ViewLists(ListManager listManager, TaskManager taskManager, bool pause = true)
         {
-            Console.Clear();
             Dictionary<int, KanbanList> listList = listManager.GetLists();
 
-            Console.WriteLine("--- Kanban Board Lists ---");
-
-            if (listList.Count == 0)
+            void PrintList()
             {
-                Console.WriteLine("No lists to display. Please create a list first.");
-                if (pause)
+                Console.WriteLine("--- Kanban Board Lists ---");
+                if (listList.Count == 0)
                 {
-                    Console.WriteLine("\nPress any key to return.");
-                    Console.ReadKey();
-                    Console.Clear();
+                    Console.WriteLine("No lists to display. Please create a list first.");
                 }
+                else
+                {
+                    var sortedLists = listList.Values.OrderBy(l => l.Status);
+                    foreach (KanbanList list in sortedLists)
+                    {
+                        Console.WriteLine(list.GetDetails());
+                        Console.WriteLine("--------------------");
+                    }
+                }
+            }
+
+            if (!pause)
+            {
+                Console.Clear();
+                PrintList();
                 return;
             }
-            else
-            {
-                foreach (var list in listList.Values)
-                {
-
-                    Console.WriteLine($"ID: {list.Id}");
-                    Console.WriteLine($"Title: {list.Title}");
-                    Console.WriteLine($"Description: {list.Description}");
-                    Console.WriteLine($"Status: {list.Status}");
-                    Console.WriteLine("-----------------");
-                }
-            }
-
-            // if pause is false, this function is being used as a helper 
-            if (!pause) return;
 
             while (true)
             {
+                Console.Clear();
+                PrintList();
+
+                if (listList.Count == 0)
+                {
+                    Console.WriteLine("\nPress any key to return.");
+                    Console.ReadKey();
+                    break;
+                }
+
                 Console.WriteLine("\nOptions:");
                 Console.WriteLine("- Enter a [List ID] to view its tasks");
                 Console.WriteLine("- Press [Enter] to return to the menu");
@@ -57,6 +63,7 @@ namespace Kanban_Board.GUI
 
                     if (selectedList != null)
                     {
+                        Console.Clear();
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine($"\n--- Tasks in '{selectedList.Title}' ---");
                         Console.ResetColor();
@@ -72,29 +79,26 @@ namespace Kanban_Board.GUI
                                 KanbanTask? task = taskManager.GetTaskById(taskId);
                                 if (task != null)
                                 {
-                                    Console.WriteLine($"ID: {task.Id}");
-                                    Console.WriteLine($"Title: {task.Title}");
-                                    Console.WriteLine($"Description: {task.Description}");
-                                    Console.WriteLine($"Status: {task.Status}");
-                                    Console.WriteLine($"Priority: {task.Priority}");
-                                    Console.WriteLine($"Deadline: {task.Deadline.ToShortDateString()}");
+                                    Console.WriteLine(task.GetDetails());
                                     Console.WriteLine("-----------------");
                                 }
                             }
                         }
-                        Console.WriteLine("-----------------------");
+                        Console.WriteLine("\nPress any key to return to the board...");
+                        Console.ReadKey();
                     }
                     else
                     {
                         Console.WriteLine($"List with ID {listId} not found.");
+                        Console.ReadKey();
                     }
                 }
                 else
                 {
                     Console.WriteLine("Invalid format. Please enter a number.");
+                    Console.ReadKey();
                 }
             }
-
             Console.Clear();
         }
 
@@ -229,6 +233,14 @@ namespace Kanban_Board.GUI
             if (!int.TryParse(Console.ReadLine(), out int targetListId))
             {
                 Console.WriteLine("Invalid ID format.");
+                Console.ReadKey();
+                return;
+            }
+
+            if (listManager.GetListById(targetListId) == null)
+            {
+                Console.WriteLine("Target list does not exist.");
+                Console.ReadKey();
                 return;
             }
 
@@ -236,51 +248,58 @@ namespace Kanban_Board.GUI
             if (allTasks.Count == 0)
             {
                 Console.WriteLine("There are no available tasks.");
+                Console.ReadKey();
                 return;
             }
 
             Console.WriteLine("\nAvailable Tasks:");
             foreach (var task in allTasks.Values)
             {
-                Console.WriteLine($"ID: {task.Id} | Title: {task.Title} | Description: {task.Description}");
+                Console.WriteLine($"ID: {task.Id} | Title: {task.Title} | Status: {task.Status}");
             }
 
-            Console.WriteLine("\nEnter the IDs of the tasks to move/add (comma separated):");
+            Console.WriteLine("\nEnter the IDs of the tasks to move (comma separated):");
             string? taskInput = Console.ReadLine();
 
             if (string.IsNullOrWhiteSpace(taskInput)) return;
 
             string[] taskIds = taskInput.Split(',');
             int successCount = 0;
+            List<string> errors = new List<string>();
 
             foreach (var idStr in taskIds)
             {
                 if (int.TryParse(idStr.Trim(), out int taskId))
                 {
-                    KanbanTask? taskObj = taskManager.GetTaskById(taskId);
+                    bool success = listManager.AddOrMoveTask(taskId, targetListId);
 
-                    if (taskObj != null)
+                    if (success)
                     {
-                        //pass task ID instead of the task object
-                        bool success = listManager.AddOrMoveTask(taskId, targetListId);
-
-                        if (success) successCount++;
+                        successCount++;
                     }
                     else
                     {
-                        Console.WriteLine($"Task ID {taskId} does not exist in the database.");
-                        Thread.Sleep(1000);
-                        Console.Clear();
+                        errors.Add($"ID {taskId}: Failed (Task not found or already in list)");
                     }
+                }
+                else
+                {
+                    errors.Add($"'{idStr}' is not a valid number.");
                 }
             }
 
-            if (successCount > 0)
+            Console.WriteLine($"\nSuccessfully moved {successCount} task(s).");
+
+            if (errors.Count > 0)
             {
-                Console.WriteLine($"\nSuccessfully processed {successCount} task(s)!");
-                Thread.Sleep(1000);
-                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nErrors encountered:");
+                foreach (var err in errors) Console.WriteLine("- " + err);
+                Console.ResetColor();
             }
+
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
         }
     }
 }
