@@ -231,25 +231,25 @@ namespace Kanban_Board
                 {
                     PrintColored($"Could not save new user: {ex.Message}", ConsoleColor.Red);
                     users.Remove(newUser);
-                    Thread.Sleep(3000);
+                    Thread.Sleep(1000);
                     return;
                 }
 
                 PrintColored($"\nUser '{username}' registered successfully!", ConsoleColor.Green);
                 Console.WriteLine("Returning to menu...");
-                Thread.Sleep(2000);
+                Thread.Sleep(1000);
             }
             catch (ArgumentException ex)
             {
                 PrintColored($"Registration failed: {ex.Message}", ConsoleColor.Red);
                 Console.WriteLine("Returning to menu in 3 seconds...");
-                Thread.Sleep(3000);
+                Thread.Sleep(1000);
             }
             catch (Exception ex)
             {
                 PrintColored($"An unexpected error occurred during registration: {ex.Message}", ConsoleColor.Red);
                 Console.WriteLine("Returning to menu in 3 seconds...");
-                Thread.Sleep(3000);
+                Thread.Sleep(1000);
             }
         }
 

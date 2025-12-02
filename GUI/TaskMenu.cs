@@ -10,7 +10,7 @@ namespace Kanban_Board.GUI
         public static void ViewTasks(TaskManager taskManager, bool pause = true)
         {
             Console.Clear();
-            List<KanbanTask> taskList = taskManager.GetTasks();
+            Dictionary<int, KanbanTask> taskList = taskManager.GetTasks();
 
             Console.WriteLine("--- All Tasks ---");
             if (taskList.Count == 0)
@@ -26,10 +26,8 @@ namespace Kanban_Board.GUI
             }
             else
             {
-                for (int i = 0; i < taskList.Count; i++)
+                foreach (KanbanTask task in taskList.Values)
                 {
-                    KanbanTask task = taskList[i];
-
                     Console.WriteLine($"ID: {task.Id}");
                     Console.WriteLine($"Title: {task.Title}");
                     Console.WriteLine($"Description: {task.Description}");

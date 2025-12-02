@@ -1,5 +1,6 @@
 ﻿using Kanban_Board.Classes;
 using Kanban_Board.Services;
+using System.Diagnostics;
 
 namespace Kanban_Board.GUI
 {
@@ -8,7 +9,7 @@ namespace Kanban_Board.GUI
         public static void ViewLists(ListManager listManager, TaskManager taskManager, bool pause = true)
         {
             Console.Clear();
-            List<KanbanList> listList = listManager.GetLists();
+            Dictionary<int, KanbanList> listList = listManager.GetLists();
 
             Console.WriteLine("--- Kanban Board Lists ---");
 
@@ -19,19 +20,24 @@ namespace Kanban_Board.GUI
                 {
                     Console.WriteLine("\nPress any key to return.");
                     Console.ReadKey();
+                    Console.Clear();
                 }
                 return;
             }
-
-            foreach (var list in listList)
+            else
             {
-                Console.WriteLine($"ID: {list.Id} | {list.Title} | ({list.TaskIds.Count} Tasks)");
-                Console.WriteLine($"Status: {list.Status}");
-                Console.WriteLine("--------------------------");
+                foreach (var list in listList.Values)
+                {
+
+                    Console.WriteLine($"ID: {list.Id}");
+                    Console.WriteLine($"Title: {list.Title}");
+                    Console.WriteLine($"Description: {list.Description}");
+                    Console.WriteLine($"Status: {list.Status}");
+                    Console.WriteLine("-----------------");
+                }
             }
 
             // if pause is false, this function is being used as a helper 
-            // (e.g. by MoveTasks), so exit immediately so the other function can continue.
             if (!pause) return;
 
             while (true)
@@ -198,8 +204,8 @@ namespace Kanban_Board.GUI
                 {
                     listManager.DeleteList(listToDelete);
                     Console.WriteLine("List deleted successfully!");
-                    Console.WriteLine("Press any key to return to the menu.");
-                    Console.ReadKey();
+                    Thread.Sleep(1000);
+                    Console.Clear();
                 }
                 else
                 {
@@ -207,9 +213,6 @@ namespace Kanban_Board.GUI
                 }
             }
             else
-            {
-
-            }
             {
                 Console.WriteLine("Invalid ID format.");
             }
@@ -237,7 +240,7 @@ namespace Kanban_Board.GUI
             }
 
             Console.WriteLine("\nAvailable Tasks:");
-            foreach (var task in allTasks)
+            foreach (var task in allTasks.Values)
             {
                 Console.WriteLine($"ID: {task.Id} | Title: {task.Title} | Description: {task.Description}");
             }
@@ -266,6 +269,8 @@ namespace Kanban_Board.GUI
                     else
                     {
                         Console.WriteLine($"Task ID {taskId} does not exist in the database.");
+                        Thread.Sleep(1000);
+                        Console.Clear();
                     }
                 }
             }

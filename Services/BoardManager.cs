@@ -1,11 +1,15 @@
 ﻿using Kanban_Board.Classes;
 using Kanban_Board.Enums;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Kanban_Board.Services
 {
     internal class BoardManager
     {
-        private List<KanbanBoard> _boards = new List<KanbanBoard>();
+        private Dictionary<int, KanbanBoard> _boards = new Dictionary<int, KanbanBoard>();
         private int _nextBoardId = 1;
 
         public void CreateBoard(string title, string description)
@@ -15,51 +19,76 @@ namespace Kanban_Board.Services
                 Id = _nextBoardId++,
                 Title = title,
                 Description = description,
-                Lists = new List<KanbanList>() // boards initialize with empty Lists
+                Lists = new List<KanbanList>()
             };
-            _boards.Add(newBoard);
+            _boards.Add(newBoard.Id, newBoard);
         }
 
-        public List<KanbanBoard> GetBoards()
+        public Dictionary<int, KanbanBoard> GetBoards()
         {
             return _boards;
         }
 
         public KanbanBoard? GetBoardById(int id)
         {
-            return _boards.FirstOrDefault(b => b.Id == id);
+            if (_boards.TryGetValue(id, out KanbanBoard? board))
+            {
+                return board;
+            }
+            return null;
         }
 
-        public bool AddOrMoveList(KanbanList listToMove, int targetColumnId)
+        public bool AddOrMoveList(int listId, int targetBoardId)
         {
-            var targetColumn = _boards.FirstOrDefault(l => l.Id == targetColumnId);
-            if (targetColumn == null)
+            if (!_boards.TryGetValue(targetBoardId, out var targetBoard))
             {
-                Console.WriteLine($"Error: Target board with ID {targetColumnId} not found.");
+                Console.WriteLine($"Error: Target board with ID {targetBoardId} not found.");
                 return false;
             }
 
-            var currentOwnerList = _boards.FirstOrDefault(l => l.Lists.Any(t => t.Id == listToMove.Id));
+            KanbanList? listToMove = null;
+            KanbanBoard? currentOwnerBoard = null;
 
-            if (currentOwnerList != null)
+
+            foreach (var board in _boards.Values)
             {
-                if (currentOwnerList == targetColumn)
+                var foundList = board.Lists.FirstOrDefault(l => l.Id == listId);
+                if (foundList != null)
                 {
-                    Console.WriteLine("Task is already in this list.");
+                    listToMove = foundList;
+                    currentOwnerBoard = board;
+                    break;
+                }
+            }
+
+            if (listToMove == null)
+            {
+                Console.WriteLine($"Error: List with ID {listId} not found in any board.");
+                return false;
+            }
+
+            if (currentOwnerBoard != null)
+            {
+                if (currentOwnerBoard == targetBoard)
+                {
+                    Console.WriteLine("List is already in this board.");
                     return false;
                 }
 
-                currentOwnerList.Lists.Remove(listToMove);
+                currentOwnerBoard.Lists.Remove(listToMove);
             }
 
-            targetColumn.Lists.Add(listToMove);
+            targetBoard.Lists.Add(listToMove);
 
             return true;
         }
 
         public void DeleteBoard(KanbanBoard board)
         {
-            _boards.Remove(board);
+            if (_boards.ContainsKey(board.Id))
+            {
+                _boards.Remove(board.Id);
+            }
         }
 
         // --- BINARY SAVE/LOAD IMPLEMENTATION ---
@@ -72,9 +101,8 @@ namespace Kanban_Board.Services
             {
                 writer.Write(_boards.Count);
 
-                foreach (var board in _boards)
+                foreach (var board in _boards.Values)
                 {
-                    //write board data
                     writer.Write(board.Id);
                     writer.Write(board.Title ?? "Untitled");
                     writer.Write(board.Description ?? "");
@@ -82,14 +110,15 @@ namespace Kanban_Board.Services
 
                     writer.Write(board.Lists.Count);
 
-                    foreach (var list in board.Lists) //write list data
+                    foreach (var list in board.Lists)
                     {
                         writer.Write(list.Id);
                         writer.Write(list.Title ?? "");
                         writer.Write(list.Description ?? "");
                         writer.Write((int)list.Status);
-                        writer.Write(list.TaskIds.Count);//write number of Task Ids
-                        foreach (var taskId in list.TaskIds)//write only the Task Ids
+                        writer.Write(list.TaskIds.Count);
+
+                        foreach (var taskId in list.TaskIds)
                         {
                             writer.Write(taskId);
                         }
@@ -105,7 +134,7 @@ namespace Kanban_Board.Services
 
             if (!File.Exists(fileName))
             {
-                _boards = new List<KanbanBoard>();
+                _boards = new Dictionary<int, KanbanBoard>();
                 _nextBoardId = 1;
                 return;
             }
@@ -139,7 +168,6 @@ namespace Kanban_Board.Services
 
                         for (int j = 0; j < listCount; j++)
                         {
-                            //read list data
                             int listId = reader.ReadInt32();
                             string listTitle = reader.ReadString();
                             string listDesc = reader.ReadString();
@@ -151,28 +179,26 @@ namespace Kanban_Board.Services
                                 Title = listTitle,
                                 Description = listDesc,
                                 Status = listStatus,
-                                TaskIds = new List<int>() // use TaskIds
+                                TaskIds = new List<int>()
                             };
 
-                            
-                            int taskIdCount = reader.ReadInt32();//read number of tasks in this list
+                            int taskIdCount = reader.ReadInt32();
 
                             for (int k = 0; k < taskIdCount; k++)
                             {
-                                int taskId = reader.ReadInt32();//read only the task ID
+                                int taskId = reader.ReadInt32();
                                 newList.TaskIds.Add(taskId);
                             }
 
                             newBoard.Lists.Add(newList);
                         }
 
-                        _boards.Add(newBoard);
+                        _boards.Add(newBoard.Id, newBoard);
                     }
 
-                    //update _nextBoardId to avoid duplicates
                     if (_boards.Count > 0)
                     {
-                        _nextBoardId = _boards.Max(b => b.Id) + 1;
+                        _nextBoardId = _boards.Keys.Max() + 1;
                     }
                     else
                     {
@@ -183,7 +209,7 @@ namespace Kanban_Board.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading boards: {ex.Message}");
-                _boards = new List<KanbanBoard>();
+                _boards = new Dictionary<int, KanbanBoard>();
                 _nextBoardId = 1;
             }
         }

@@ -1,12 +1,20 @@
 ﻿using Kanban_Board.Classes;
 using Kanban_Board.Enums;
+using System.Threading.Tasks;
 
 namespace Kanban_Board.Services
 {
     internal class ListManager
     {
-        private List<KanbanList> _lists = new List<KanbanList>();
+        private Dictionary<int, KanbanList> _lists = new Dictionary<int, KanbanList>();
+        
         private int _nextListId = 1; //unique IDs
+
+
+        public Dictionary<int, KanbanList> GetLists()
+        {
+            return _lists;
+        }
 
         public void CreateList(string title, string description)
         {
@@ -17,34 +25,35 @@ namespace Kanban_Board.Services
                 Description = description,
                 TaskIds = new List<int>(),
             };
-            _lists.Add(newList);
-        }
-
-        public List<KanbanList> GetLists()
-        {
-            return _lists;
+            _lists.Add(newList.Id, newList);
         }
 
         public KanbanList? GetListById(int id)
         {
-            return _lists.FirstOrDefault(l => l.Id == id);
+            if (_lists.TryGetValue(id, out KanbanList? list))
+            {
+                return list;
+            }
+            return null;
         }
 
         public void DeleteList(KanbanList list)
         {
-            _lists.Remove(list);
+            if (_lists.ContainsKey(list.Id))
+            { 
+                _lists.Remove(list.Id);
+            }
         }
 
         public bool AddOrMoveTask(int taskId, int targetColumnId)
         {
-            var targetColumn = _lists.FirstOrDefault(l => l.Id == targetColumnId);
-            if (targetColumn == null)
+            if (!_lists.TryGetValue(targetColumnId, out var targetColumn))
             {
                 Console.WriteLine($"Error: Target list with ID {targetColumnId} not found.");
                 return false;
             }
 
-            var currentOwnerList = _lists.FirstOrDefault(l => l.TaskIds.Any(id => id == taskId));
+            var currentOwnerList = _lists.Values.FirstOrDefault(l => l.TaskIds.Contains(taskId));
 
             if (currentOwnerList != null)
             {
@@ -73,7 +82,7 @@ namespace Kanban_Board.Services
                 //write total number of Lists
                 writer.Write(_lists.Count);
 
-                foreach (var list in _lists)
+                foreach (var list in _lists.Values)
                 {
                     //write List data
                     writer.Write(list.Id);
@@ -96,7 +105,7 @@ namespace Kanban_Board.Services
 
             if (!File.Exists(fileName))
             {
-                _lists = new List<KanbanList>();
+                _lists = new Dictionary<int, KanbanList>();
                 _nextListId = 1;
                 return;
             }
@@ -108,7 +117,6 @@ namespace Kanban_Board.Services
                 {
                     _lists.Clear();
 
-                    //read total number of Lists
                     int listCount = reader.ReadInt32();
 
                     for (int i = 0; i < listCount; i++)
@@ -116,7 +124,7 @@ namespace Kanban_Board.Services
                         int listId = reader.ReadInt32();
                         string listTitle = reader.ReadString();
                         string listDesc = reader.ReadString();
-                        Status listStatus = (Status)reader.ReadInt32(); // Read status
+                        Status listStatus = (Status)reader.ReadInt32();
 
                         KanbanList newList = new KanbanList
                         {
@@ -124,25 +132,26 @@ namespace Kanban_Board.Services
                             Title = listTitle,
                             Description = listDesc,
                             Status = listStatus,
-                            TaskIds = new List<int>() // Initialize TaskIds
+                            TaskIds = new List<int>()
                         };
 
-                        //read number of Task Ids
+                        // read number of Task Ids
                         int taskIdCount = reader.ReadInt32();
 
-                        //read each Task ID from the list
                         for (int j = 0; j < taskIdCount; j++)
                         {
                             int taskId = reader.ReadInt32();
                             newList.TaskIds.Add(taskId);
                         }
 
-                        _lists.Add(newList);
+                        //add using ID as Key
+                        _lists.Add(newList.Id, newList);
                     }
 
                     if (_lists.Count > 0)
                     {
-                        _nextListId = _lists.Max(l => l.Id) + 1;
+                        //use .Keys.Max() to find the highest ID
+                        _nextListId = _lists.Keys.Max() + 1;
                     }
                     else
                     {
@@ -153,7 +162,7 @@ namespace Kanban_Board.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading lists: {ex.Message}");
-                _lists = new List<KanbanList>();
+                _lists = new Dictionary<int, KanbanList>();
                 _nextListId = 1;
             }
         }

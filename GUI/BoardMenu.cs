@@ -8,7 +8,7 @@ namespace Kanban_Board.GUI
         public static void ViewBoards(BoardManager boardManager, bool pause = true)
         {
             Console.Clear();
-            List<KanbanBoard> boardList = boardManager.GetBoards();
+            Dictionary<int, KanbanBoard> boardList = boardManager.GetBoards();
             Console.WriteLine("--- All Boards ---");
             if (boardList.Count == 0)
             {
@@ -23,10 +23,8 @@ namespace Kanban_Board.GUI
             }
             else
             {
-                for (int i = 0; i < boardList.Count; i++)
+                foreach (var board in boardList.Values)
                 {
-                    KanbanBoard board = boardList[i];
-
                     Console.WriteLine($"ID: {board.Id}");
                     Console.WriteLine($"Title: {board.Title}");
                     Console.WriteLine($"Description: {board.Description}");
@@ -196,8 +194,7 @@ namespace Kanban_Board.GUI
                 {
                     boardManager.DeleteBoard(boardToDelete);
                     Console.WriteLine("Board deleted successfully!");
-                    Console.WriteLine("Press any key to return to the menu.");
-                    Console.ReadKey();
+                    Thread.Sleep(1000);
                     Console.Clear();
                 }
                 else
@@ -219,7 +216,7 @@ namespace Kanban_Board.GUI
             Console.WriteLine("\n--- Move/Add Lists ---");
             Console.WriteLine("Enter the ID of the DESTINATION Board:");
 
-            if (!int.TryParse(Console.ReadLine(), out int targetListId))
+            if (!int.TryParse(Console.ReadLine(), out int targetBoardId))
             {
                 Console.WriteLine("Invalid ID format.");
                 return;
@@ -228,12 +225,15 @@ namespace Kanban_Board.GUI
             var allLists = listManager.GetLists();
             if (allLists.Count == 0)
             {
-                Console.WriteLine("There are no available lists.");
+                Console.WriteLine("There are no available lists to move.");
+                Thread.Sleep(1000);
+                Console.Clear();
                 return;
             }
 
             Console.WriteLine("\nAvailable Lists:");
-            foreach (var list in allLists)
+            //allLists is a Dictionary so iterate over .Values
+            foreach (var list in allLists.Values)
             {
                 Console.WriteLine($"ID: {list.Id} | Title: {list.Title} | Description: {list.Description}");
             }
@@ -250,11 +250,14 @@ namespace Kanban_Board.GUI
             {
                 if (int.TryParse(idStr.Trim(), out int listId))
                 {
+                    //verify the list exists in the ListManager
                     KanbanList? listObj = listManager.GetListById(listId);
 
                     if (listObj != null)
                     {
-                        bool success = boardManager.AddOrMoveList(listObj, targetListId);
+                        //pass the IDs
+    
+                        bool success = boardManager.AddOrMoveList(listObj.Id, targetBoardId);
 
                         if (success) successCount++;
                     }
