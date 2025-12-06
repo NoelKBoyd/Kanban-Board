@@ -27,7 +27,6 @@ namespace Kanban_Board.Services
 
         public KanbanTask? GetTaskById(int id)
         {
-            //this is now way faster compared to searching a list
             if (_tasks.TryGetValue(id, out KanbanTask? task))
             {
                 return task;

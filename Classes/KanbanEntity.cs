@@ -15,5 +15,3 @@ namespace Kanban_Board.Classes
         }
     }
 }
-
-//Kanbantask, kanbanlist and kanbanboard inherit from this class

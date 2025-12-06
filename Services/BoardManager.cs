@@ -38,33 +38,21 @@ namespace Kanban_Board.Services
             return null;
         }
 
-        public bool AddOrMoveList(int listId, int targetBoardId)
+        public bool AddOrMoveList(KanbanList list, int targetBoardId)
         {
             if (!_boards.TryGetValue(targetBoardId, out var targetBoard))
             {
                 Console.WriteLine($"Error: Target board with ID {targetBoardId} not found.");
                 return false;
             }
-
-            KanbanList? listToMove = null;
             KanbanBoard? currentOwnerBoard = null;
-
-
             foreach (var board in _boards.Values)
             {
-                var foundList = board.Lists.FirstOrDefault(l => l.Id == listId);
-                if (foundList != null)
+                if (board.Lists.Any(l => l.Id == list.Id))
                 {
-                    listToMove = foundList;
                     currentOwnerBoard = board;
                     break;
                 }
-            }
-
-            if (listToMove == null)
-            {
-                Console.WriteLine($"Error: List with ID {listId} not found in any board.");
-                return false;
             }
 
             if (currentOwnerBoard != null)
@@ -75,10 +63,11 @@ namespace Kanban_Board.Services
                     return false;
                 }
 
-                currentOwnerBoard.Lists.Remove(listToMove);
+                var listToRemove = currentOwnerBoard.Lists.First(l => l.Id == list.Id);
+                currentOwnerBoard.Lists.Remove(listToRemove);
             }
 
-            targetBoard.Lists.Add(listToMove);
+            targetBoard.Lists.Add(list);
 
             return true;
         }

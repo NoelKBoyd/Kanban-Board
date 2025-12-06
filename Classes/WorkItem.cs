@@ -8,3 +8,6 @@ namespace Kanban_Board.Classes
         public Priority Priority { get; set; }
     }
 }
+
+
+

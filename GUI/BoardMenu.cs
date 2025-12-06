@@ -288,7 +288,7 @@ namespace Kanban_Board.GUI
 
                     if (listObj != null)
                     {
-                        bool success = boardManager.AddOrMoveList(listObj.Id, targetBoardId);
+                        bool success = boardManager.AddOrMoveList(listObj, targetBoardId);
 
                         if (success)
                             successCount++;
